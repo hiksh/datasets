@@ -6,15 +6,15 @@ def format_edgeiiot_dataset(input_filepath, output_filepath):
     df = pd.read_csv(input_filepath, low_memory=False)
     
     # 2. Column mapping
-    # Attack_type -> attack_name (공격의 종류)
-    # Attack_label -> attack_flag (공격 여부, 0 또는 1)
+    # Attack_type -> attack_name
+    # Attack_label -> attack_flag
     rename_mapping = {}
     if 'Attack_type' in df.columns:
         rename_mapping['Attack_type'] = 'attack_name'
     if 'Attack_label' in df.columns:
         rename_mapping['Attack_label'] = 'attack_flag'
         
-    # 컬럼 이름 변경 적용
+    # Apply column name changes
     df.rename(columns=rename_mapping, inplace=True)
     
     # 3. If no attack_step -> append
