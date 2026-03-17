@@ -86,3 +86,6 @@ dist/*
 *.csv
 *.parquet
 catboost_info
+
+LSPR23/
+lspr23_demo.py
