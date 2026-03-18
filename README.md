@@ -75,8 +75,7 @@ done
 Due to its large file size, the LSPR23 dataset cannot be downloaded automatically via script. Additionally, unlike other datasets, LSPR23 only requires a **processing step** — not a download step. Please follow these manual steps:
 
 1. Download the dataset manually from: [Zenodo - LSPR23](https://zenodo.org/records/8042347)
-2. Extract the downloaded file and keep the folder name exactly as `LSPR23`.
-3. Move the `LSPR23/` folder into the `lspr23/` directory of this repository.
+2. Extract the downloaded file directly into the lspr23/ directory of this repository, keeping the extracted folder name exactly as LSPR23.
 4. Run the processing script:
 
 ```bash
