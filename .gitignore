@@ -87,5 +87,6 @@ dist/*
 *.parquet
 catboost_info
 
-LSPR23/
+lspr23/LSPR23/
 lspr23_demo.py
+read_100_lines.ipynb
