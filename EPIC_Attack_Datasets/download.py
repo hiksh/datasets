@@ -63,9 +63,9 @@ def main():
         df_merged = pd.concat([df_a, df_b], ignore_index=True)
         df_processed = process_dataframe(df_merged)
         
-        df_processed.to_csv('Reformatted_EPIC_merged.csv', index=False)
-        
-        print("'Reformatted_EPIC_merged.csv' file has been created.")
+        df_processed.to_csv('Reformatted_EPIC.csv', index=False)
+
+        print("'Reformatted_EPIC.csv' file has been created.")
 
 if __name__ == "__main__":
     main()

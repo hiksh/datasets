@@ -1,0 +1,67 @@
+# Dataset metadata: tags for filtering and discovery.
+# A single dataset may carry multiple tags (categories are not exclusive).
+#
+# Tag vocabulary:
+#   general-purpose  — broad network traffic, not environment-specific
+#   iot              — consumer IoT devices
+#   iiot-ics         — industrial IoT / Industrial Control Systems
+#   botnet           — botnet / malware propagation traffic
+#   dos-ddos         — Denial-of-Service / Distributed DoS attacks
+#   web-attacks      — XSS, SQLi, and other web application attacks
+#   brute-force      — credential brute-force / password spraying
+#   scan             — port scanning / network reconnaissance
+#   infiltration     — lateral movement / infiltration scenarios
+#   apt              — Advanced Persistent Threat campaigns
+#   anomaly          — anomaly detection focus
+
+cicids2017:
+  path: cicids2017/
+  tags: [general-purpose, dos-ddos, web-attacks, brute-force, scan, infiltration, botnet]
+
+cicids2018:
+  path: cicids2018/
+  tags: [general-purpose, dos-ddos, web-attacks, brute-force, scan, infiltration, botnet]
+
+ciciot2023:
+  path: ciciot2023/
+  tags: [iot, general-purpose]
+
+nsl-kdd:
+  path: nsl-kdd/
+  tags: [general-purpose, anomaly]
+
+unsw-nb15:
+  path: unsw-nb15/
+  tags: [general-purpose, anomaly]
+
+ton-iot:
+  path: ton-iot/
+  tags: [iiot-ics, general-purpose]
+
+mirai:
+  path: mirai/
+  tags: [iot, botnet]
+
+EPIC_Attack_Datasets:
+  path: EPIC_Attack_Datasets/
+  tags: [apt]
+
+lspr23:
+  path: lspr23/
+  tags: [general-purpose, anomaly]
+
+edge-iiot:
+  path: edge-iiot/
+  tags: [iiot-ics, iot]
+
+xiiotid:
+  path: xiiotid/
+  tags: [iiot-ics, iot]
+
+nf-ton-iot-v3:
+  path: nf-ton-iot-v3/
+  tags: [iiot-ics]
+
+wustl-iiot-2021:
+  path: wustl-iiot-2021/
+  tags: [iiot-ics]
