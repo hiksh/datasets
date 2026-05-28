@@ -24,6 +24,20 @@ DATASETS=(
     nf-ton-iot-v3
     wustl-iiot-2021
     lspr23
+    kddcup1999
+    ctu-13
+    bot-iot
+    iot-23
+    cic-ddos2019
+    n-baiot
+    cidds-001
+    cidds-002
+    iotid20
+    hikari-2021
+    awid2
+    awid3
+    kitsune
+    insdn
 )
 
 if [ $# -gt 0 ]; then

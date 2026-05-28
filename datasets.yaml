@@ -13,6 +13,8 @@
 #   infiltration     — lateral movement / infiltration scenarios
 #   apt              — Advanced Persistent Threat campaigns
 #   anomaly          — anomaly detection focus
+#   wireless         — Wi-Fi / 802.11 wireless network traffic
+#   sdn              — Software-Defined Networking environments
 
 cicids2017:
   path: cicids2017/
@@ -65,3 +67,59 @@ nf-ton-iot-v3:
 wustl-iiot-2021:
   path: wustl-iiot-2021/
   tags: [iiot-ics]
+
+kddcup1999:
+  path: kddcup1999/
+  tags: [general-purpose, anomaly]
+
+ctu-13:
+  path: ctu-13/
+  tags: [botnet]
+
+bot-iot:
+  path: bot-iot/
+  tags: [iot, botnet, dos-ddos]
+
+iot-23:
+  path: iot-23/
+  tags: [iot, botnet]
+
+cic-ddos2019:
+  path: cic-ddos2019/
+  tags: [dos-ddos, general-purpose]
+
+n-baiot:
+  path: n-baiot/
+  tags: [iot, botnet]
+
+cidds-001:
+  path: cidds-001/
+  tags: [general-purpose, scan]
+
+cidds-002:
+  path: cidds-002/
+  tags: [general-purpose, scan]
+
+iotid20:
+  path: iotid20/
+  tags: [iot]
+
+hikari-2021:
+  path: hikari-2021/
+  tags: [general-purpose]
+
+awid2:
+  path: awid2/
+  tags: [wireless]
+
+awid3:
+  path: awid3/
+  tags: [wireless]
+
+kitsune:
+  path: kitsune/
+  tags: [iot, anomaly]
+
+insdn:
+  path: insdn/
+  tags: [sdn]

@@ -92,3 +92,11 @@ lspr23_demo.py
 read_100_lines.ipynb
 
 CLAUDE.md
+
+# Phase 2 datasets not yet fully verified (kill-chain mapping incomplete or untested)
+# Re-enable when re-download + full verification is done
+iot-23/
+insdn/
+awid2/
+awid3/
+kitsune/
