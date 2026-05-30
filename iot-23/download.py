@@ -1,128 +1,171 @@
 """
 IoT-23 Dataset — CTU IoT Botnet Dataset
-Source: Stratosphere Research Laboratory (CTU, Czech Technical University)
-Official: https://www.stratosphereips.org/datasets-iot23
+Official source: Stratosphere Research Laboratory (CTU, Czech Technical University)
+  https://www.stratosphereips.org/datasets-iot23
 
-Kaggle mirrors (require license acceptance):
-  - pchaberger/iot-23-network-traffic-dataset
-  - aarontfrancis/iot-23-dataset
+Data format: Zeek conn.log (tab-separated) with appended label columns.
+  - 20 tab-separated flow fields: ts, uid, id.orig_h, id.orig_p, id.resp_h, id.resp_p,
+    proto, service, duration, orig_bytes, resp_bytes, conn_state, local_orig, local_resp,
+    missed_bytes, history, orig_pkts, orig_ip_bytes, resp_pkts, resp_ip_bytes
+  - Last field (space-separated within the tab): tunnel_parents  label  detailed-label
 
-NOTE: The Kaggle source surajsooraj26/iot-23 only contains '-' labels (benign flows).
-      Use a different source with proper detailed_label column values.
+Labels:
+  label: "Benign" | "Malicious"
+  detailed-label: "-" (benign) | attack type string
 
-Environment: 20 malware captures + 3 benign captures on IoT devices
-Attacks: Mirai, Torii, Okiru botnets + DDoS, PortScan, C&C
+20 attack scenarios (malware families: Mirai, Torii, Okiru, Muhstik, etc.)
 """
-import kagglehub
 import os
+import urllib.request
 import pandas as pd
 
-KAGGLE_DATASET = "pchaberger/iot-23-network-traffic-dataset"
+BASE_URL = "https://mcfp.felk.cvut.cz/publicDatasets/IoT-23-Dataset/IndividualScenarios/"
 INPUT_FILENAME = "IoT-23.csv"
 OUTPUT_FILENAME = "Reformatted_IoT-23.csv"
+MAX_ROWS_PER_SCENARIO = 200_000
 
-# IoT-23 detailed_label → kill-chain step
-# Labels follow format like "Benign", "Attack", "PartOfAHorizontalPortScan", etc.
+# IoT-23 detailed-label → kill-chain step
 KILL_CHAIN = {
     "benign": 0,
-    "-": 0,                      # unlabeled flows → treat as benign
+    "-": 0,
     # Reconnaissance
     "partofahorizontalportscan": 1,
     "portscan": 1,
-    # C&C
+    # C&C (all botnet C&C variants)
     "c&c": 6,
     "c&c-heartbeat": 6,
     "c&c-heartbeat-attack": 6,
+    "c&c-heartbeat-localnetwork": 6,
     "c&c-mirai": 6,
     "c&c-torii": 6,
     "c&c-okiru": 6,
     "c&c-filedownload": 6,
+    "c&c-heartbeat-filedownload": 6,
+    "filedownload": 6,
+    "okiru": 6,        # Okiru botnet (Mirai variant) C&C activity
     # Actions on Objectives
     "ddos": 7,
     "attack": 7,
     "dos": 7,
+    "okiru-attack": 7, # Okiru attack phase (DDoS/DoS)
 }
 
+FLOW_FIELDS = [
+    "ts", "uid", "id.orig_h", "id.orig_p", "id.resp_h", "id.resp_p",
+    "proto", "service", "duration", "orig_bytes", "resp_bytes", "conn_state",
+    "local_orig", "local_resp", "missed_bytes", "history",
+    "orig_pkts", "orig_ip_bytes", "resp_pkts", "resp_ip_bytes",
+]
 
-def find_all_csvs(base_path):
-    csvs = []
-    for root, _, files in os.walk(base_path):
-        for f in sorted(files):
-            if f.endswith(".csv"):
-                csvs.append(os.path.join(root, f))
-    return csvs
+
+def _get_scenarios():
+    """Return list of scenario names from the official index page."""
+    import re
+    req = urllib.request.Request(BASE_URL, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=15) as r:
+        content = r.read().decode("utf-8", errors="ignore")
+    return re.findall(r'href="(CTU-IoT[^"]+/)"', content)
+
+
+def _parse_label(last_field):
+    """Parse the combined 'tunnel_parents  label  detailed-label' field."""
+    parts = last_field.strip().split()
+    if len(parts) < 3:
+        return "benign", "-"
+    # parts[0] = tunnel_parents, parts[1] = label, parts[2] = detailed-label
+    label = parts[1]        # "Benign" or "Malicious"
+    detailed = parts[2]     # "-" or attack type
+    return label, detailed
+
+
+def _stream_scenario(scenario_dir, max_rows):
+    """Stream-download a scenario's conn.log.labeled, return rows as list of dicts."""
+    url = f"{BASE_URL}{scenario_dir}bro/conn.log.labeled"
+    rows = []
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            for raw_line in r:
+                line = raw_line.decode("utf-8", errors="ignore").rstrip("\n")
+                if not line or line.startswith("#"):
+                    continue
+                parts = line.split("\t")
+                if len(parts) < 21:
+                    continue
+                label_str, detailed = _parse_label(parts[-1])
+                attack_name = detailed.lower() if label_str.lower() == "malicious" else "benign"
+                row = dict(zip(FLOW_FIELDS, parts[:20]))
+                row["attack_name"] = attack_name
+                rows.append(row)
+                if max_rows and len(rows) >= max_rows:
+                    break
+    except Exception as e:
+        print(f"[WARN] Error streaming {scenario_dir}: {e}")
+    return rows
 
 
 def download():
-    print(f"[INFO] Downloading from Kaggle: {KAGGLE_DATASET}")
-    print("[INFO] NOTE: This dataset requires accepting the license on Kaggle.")
-    print("[INFO] Visit: https://www.kaggle.com/datasets/pchaberger/iot-23-network-traffic-dataset")
-    print("[INFO] Alternative: https://www.stratosphereips.org/datasets-iot23")
-    path = kagglehub.dataset_download(KAGGLE_DATASET)
+    print(f"[INFO] Fetching scenario list from: {BASE_URL}")
+    scenarios = _get_scenarios()
+    print(f"[INFO] Found {len(scenarios)} scenario(s)")
 
-    csvs = find_all_csvs(path)
-    if not csvs:
-        raise RuntimeError(f"No CSV found in {path}. Files: {os.listdir(path)}")
-
-    print(f"[INFO] Found {len(csvs)} CSV file(s)")
     dst = os.path.join(os.getcwd(), INPUT_FILENAME)
     first_write = True
     total_rows = 0
+    all_labels = set()
 
-    for csv_path in csvs:
-        try:
-            df_part = pd.read_csv(csv_path, low_memory=False)
-            # Check if detailed_label has actual labels (not just '-')
-            if "detailed_label" in df_part.columns:
-                unique_labels = df_part["detailed_label"].dropna().unique()
-                non_dash = [l for l in unique_labels if str(l).strip() not in ("-", "")]
-                if not non_dash:
-                    print(f"[WARN] {os.path.basename(csv_path)}: only '-' labels found, skipping")
-                    continue
-            df_part.to_csv(dst, index=False, mode="w" if first_write else "a", header=first_write)
-            first_write = False
-            total_rows += len(df_part)
-            print(f"[INFO] {os.path.basename(csv_path)}: {len(df_part):,} rows")
-        except Exception as e:
-            print(f"[WARN] Skipping {csv_path}: {e}")
+    for sc_dir in scenarios:
+        sc_name = sc_dir.strip("/")
+        print(f"[INFO] Downloading: {sc_name} (max {MAX_ROWS_PER_SCENARIO:,} rows)")
+        rows = _stream_scenario(sc_dir, MAX_ROWS_PER_SCENARIO)
+        if not rows:
+            print(f"[WARN] No data for {sc_name}, skipping.")
+            continue
+        df = pd.DataFrame(rows)
+        all_labels.update(df["attack_name"].unique())
+        df.to_csv(dst, index=False, mode="w" if first_write else "a", header=first_write)
+        first_write = False
+        total_rows += len(df)
+        n_attack = (df["attack_name"] != "benign").sum()
+        print(f"  → {len(df):,} rows, attack={n_attack:,}, "
+              f"labels={sorted(df['attack_name'].unique())}")
 
-    if total_rows == 0:
-        raise RuntimeError(
-            "No labeled data found. The current Kaggle source may only contain '-' labels.\n"
-            "Try a different Kaggle source or download from the official CTU website:\n"
-            "  https://www.stratosphereips.org/datasets-iot23"
-        )
     print(f"[INFO] Saved as: {dst}  (total {total_rows:,} rows)")
+    print(f"[INFO] All unique labels: {sorted(all_labels)}")
 
 
 def process(input_filepath, output_filepath):
-    print(f"[INFO] Reading: {input_filepath}")
-    df = pd.read_csv(input_filepath, low_memory=False)
-
-    # Use detailed_label as the primary label
-    label_col = "detailed_label" if "detailed_label" in df.columns else "label"
-    if label_col not in df.columns:
-        label_col = df.columns[-1]
-
-    df.rename(columns={label_col: "attack_name"}, inplace=True)
-
-    # Normalize labels
-    df["attack_name"] = df["attack_name"].astype(str).str.strip().str.lower()
-    df["attack_flag"] = (df["attack_name"].isin(["benign", "-"])).astype(int)
-    df["attack_flag"] = 1 - df["attack_flag"]  # flip: 1=attack, 0=benign
-
-    unmapped = df["attack_name"][~df["attack_name"].isin(KILL_CHAIN)].unique()
-    if len(unmapped):
-        print(f"[WARNING] Unmapped labels: {unmapped}")
-    df["attack_step"] = df["attack_name"].map(KILL_CHAIN).fillna(-1).astype(int)
-
+    print(f"[INFO] Reading header: {input_filepath}")
+    header_df = pd.read_csv(input_filepath, nrows=0)
     target_columns = ["attack_name", "attack_flag", "attack_step"]
-    feature_columns = [c for c in df.columns if c not in target_columns]
-    df = df[feature_columns + target_columns]
+    feature_columns = [c for c in header_df.columns if c not in target_columns]
 
-    print(f"[INFO] Saving: {output_filepath}")
-    df.to_csv(output_filepath, index=False)
-    print(f"[INFO] Done. Rows: {len(df):,}")
+    print(f"[INFO] Writing: {output_filepath}")
+    first_write = True
+    total_rows = 0
+    unmapped = set()
+
+    for chunk in pd.read_csv(input_filepath, chunksize=100_000, low_memory=False):
+        name_series = chunk["attack_name"].astype(str).str.strip().str.lower()
+        chunk["attack_flag"] = (name_series != "benign").astype(int)
+        u = name_series[~name_series.isin(KILL_CHAIN)].unique()
+        unmapped.update(u)
+        chunk["attack_step"] = name_series.map(KILL_CHAIN).fillna(-1).astype(int)
+
+        col_order = [c for c in feature_columns if c in chunk.columns] + target_columns
+        chunk = chunk[col_order]
+        chunk.to_csv(output_filepath, index=False,
+                     mode="w" if first_write else "a", header=first_write)
+        first_write = False
+        total_rows += len(chunk)
+
+    if unmapped:
+        print(f"[WARNING] Unmapped labels: {unmapped}")
+    print(f"[INFO] Done. Rows: {total_rows:,}")
+    df_check = pd.read_csv(output_filepath, usecols=["attack_step"], low_memory=False)
+    vc = df_check["attack_step"].value_counts().sort_index()
+    for step, cnt in vc.items():
+        print(f"  Step {step:2d}: {cnt:,}")
 
 
 if __name__ == "__main__":

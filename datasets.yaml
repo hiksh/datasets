@@ -83,6 +83,7 @@ bot-iot:
 iot-23:
   path: iot-23/
   tags: [iot, botnet]
+  source: https://mcfp.felk.cvut.cz/publicDatasets/IoT-23-Dataset/IndividualScenarios/
 
 cic-ddos2019:
   path: cic-ddos2019/

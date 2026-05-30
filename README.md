@@ -77,16 +77,21 @@ Source: https://intrusion-detection.distrinet-research.be/CNS2022/
 | **[CIC-IDS2017 Improved](./cicids2017-imp)** | general-purpose, dos-ddos, web-attacks, brute-force, scan, botnet | 328 MB zip; wget from distrinet URL |
 | **[CSE-CIC-IDS2018 Improved](./cicids2018-imp)** | general-purpose, dos-ddos, web-attacks, brute-force, scan, botnet | 9.7 GB zip; wget from distrinet URL |
 
+### Phase 2 — Verified (New in this release)
+
+| Dataset | Tags | Rows | Kill-chain steps | Notes |
+|---|---|---|---|---|
+| **[Kitsune](./kitsune)** | iot, anomaly | 1.8M | 0,1,4,6,7 | 9 scenarios × 200k sample; Kaggle `ymirsky/network-attack-dataset-kitsune` |
+| **[IoT-23](./iot-23)** | iot, botnet | 2.6M | 0,1,6,7 | 20 scenarios; official CTU source (no Kaggle required) |
+
 ### Phase 2 — Pending (License acceptance required on Kaggle)
 
 Run `python3 download.py` after accepting the dataset license at the URL shown.
 
 | Dataset | Tags | Kaggle URL | Status |
 |---|---|---|---|
-| **[Kitsune](./kitsune)** | iot, anomaly | kaggle.com/datasets/ymirsky/kitsune-network-attack-dataset | download.py ready |
 | **[AWID2](./awid2)** | wireless | kaggle.com/datasets/kolias93/awid2-wifi-intrusion-dataset | download.py ready |
 | **[AWID3](./awid3)** | wireless | kaggle.com/datasets/chatzoglou/awid3 | download.py ready |
-| **[IoT-23](./iot-23)** | iot, botnet | kaggle.com/datasets/pchaberger/iot-23-network-traffic-dataset | download.py ready |
 
 Full tag definitions and paths are in [`datasets.yaml`](./datasets.yaml).
 
@@ -178,10 +183,18 @@ Full tag definitions and paths are in [`datasets.yaml`](./datasets.yaml).
 - **AWID2:** Deauthentication, injection, impersonation attacks
 - **AWID3:** 13 attack categories including KRACK, Kr00k, deauth/disassoc flood
 
-### IoT-23 *(license required)*
-- **Source:** Kaggle `pchaberger/iot-23-network-traffic-dataset`
-- **Note:** Source must contain `detailed_label` column with actual labels (not just `-`)
-- **Attack types:** C&C (6), PortScan (1), DDoS/DoS (7)
+### Kitsune
+- **Source:** Kaggle `ymirsky/network-attack-dataset-kitsune` (no license required)
+- **Structure:** 9 attack scenarios, each directory has `{Name}_dataset.csv` (115 features, no header) + `{name}_labels.csv`
+- **Attack scenarios:** ARP MitM (4), Active Wiretap (4), Fuzzing (1), Mirai Botnet (6), OS Scan (1), SSDP Flood (7), SSL Renegotiation (7), SYN DoS (7), Video Injection (4)
+- **Sampling:** 200k rows per scenario (total ~1.8M rows)
+
+### IoT-23
+- **Source:** Official CTU/Stratosphere: `https://mcfp.felk.cvut.cz/publicDatasets/IoT-23-Dataset/IndividualScenarios/`
+- **Format:** Zeek conn.log (tab-separated), last field contains `tunnel_parents  label  detailed-label` (space-separated)
+- **Attack types:** Benign (0), PortScan (1), C&C variants (6), DDoS/Attack (7)
+- **20 scenarios:** Mirai, Torii, Okiru, Muhstik and other IoT malware families
+- **Sampling:** 200k rows per scenario (total ~2.6M rows)
 
 ---
 

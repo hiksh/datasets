@@ -129,14 +129,19 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 | Bot-IoT | `bot-iot/` | ~3.6M | 0,1,7 | 전체 재다운로드 진행 중 |
 | CIC-IDS2017 Imp. | `cicids2017-imp/` | ~1.1M | 0,1,4,6,7 | Liu et al. 2022, distrinet URL |
 
+### 신규 완료 (라이선스 불필요, 검증 완료)
+
+| Dataset | 디렉토리 | 행 수 | Kill-chain steps | 소스 |
+|---|---|---|---|---|
+| Kitsune | `kitsune/` | 1.8M | 0,1,4,6,7 | Kaggle `ymirsky/network-attack-dataset-kitsune` (라이선스 불필요) |
+| IoT-23 | `iot-23/` | 2.6M | 0,1,6,7 | 공식 CTU 사이트 직접 wget |
+
 ### download.py만 있는 datasets (Kaggle 라이선스 수락 후 실행 가능)
 
 | Dataset | 디렉토리 | Kaggle 소스 | 라이선스 URL |
 |---|---|---|---|
-| Kitsune | `kitsune/` | `ymirsky/kitsune-network-attack-dataset` | kaggle.com/datasets/ymirsky/kitsune-network-attack-dataset |
 | AWID2 | `awid2/` | `kolias93/awid2-wifi-intrusion-dataset` | kaggle.com/datasets/kolias93/awid2-wifi-intrusion-dataset |
 | AWID3 | `awid3/` | `chatzoglou/awid3` | kaggle.com/datasets/chatzoglou/awid3 |
-| IoT-23 | `iot-23/` | `pchaberger/iot-23-network-traffic-dataset` | kaggle.com/datasets/pchaberger/iot-23-network-traffic-dataset |
 
 ### 보류 중 (소스 미확인 또는 대용량)
 
@@ -164,4 +169,5 @@ df["attack_step"] = df["attack_name"].str.lower().map(KILL_CHAIN).fillna(-1).ast
 - **Bot-IoT**: `subcategory ` 컬럼에 trailing space 있음 → `errors="ignore"`로 drop.
 - **CIC-DDoS2019**: KILL_CHAIN에 `netbios`, `ldap`, `mssql`, `portmap`, `udp`, `webddos`, `udplag` 추가 필요 (v3 Kaggle 소스에 새로운 레이블 존재).
 - **NSL-KDD**: KDDTrain+.txt 외에 test 파일에는 원본에 없는 공격 타입 포함 (saint, mscan 등) → KILL_CHAIN 확장 완료.
-- **IoT-23 Kaggle 소스 (surajsooraj26/iot-23)**: detailed_label이 `-`만 존재. `pchaberger/iot-23-network-traffic-dataset` 사용 필요 (라이선스 수락 필요).
+- **IoT-23**: Kaggle 소스 대신 공식 CTU 사이트(mcfp.felk.cvut.cz)에서 직접 스트리밍 다운로드. Zeek conn.log 형식 파싱 필요 (마지막 탭필드가 `tunnel_parents label detailed-label` 공백구분).
+- **Kitsune**: Kaggle `ymirsky/network-attack-dataset-kitsune` (라이선스 불필요). 구 URL `ymirsky/kitsune-network-attack-dataset`는 라이선스 필요 버전. Mirai Botnet 시나리오는 레이블 파일이 소문자(`mirai_labels.csv`) — 대소문자 무시 매칭 필요.
