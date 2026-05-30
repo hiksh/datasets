@@ -163,11 +163,14 @@ def process(output_filepath):
     print(f"[INFO] Total rows: {total_rows:,}")
     print(f"[INFO] Output: {output_filepath}")
 
-    # Step distribution summary
-    df_check = pd.read_csv(output_filepath, usecols=["attack_step"], low_memory=False)
-    vc = df_check["attack_step"].value_counts().sort_index()
+    # Step distribution summary (chunked to avoid OOM on large file)
+    from collections import Counter
+    step_counts = Counter()
+    for chunk in pd.read_csv(output_filepath, usecols=["attack_step"],
+                             chunksize=500_000, low_memory=False):
+        step_counts.update(chunk["attack_step"].value_counts().to_dict())
     print("[INFO] Kill-chain step distribution:")
-    for step, cnt in vc.items():
+    for step, cnt in sorted(step_counts.items()):
         print(f"  Step {step:2d}: {cnt:,}")
 
 
@@ -200,12 +203,18 @@ if __name__ == "__main__":
         process(OUTPUT_FILENAME)
     else:
         print(f"[INFO] {OUTPUT_FILENAME} already exists, skipping processing.")
-        df = pd.read_csv(OUTPUT_FILENAME, usecols=["attack_step", "attack_name"], low_memory=False)
-        print(f"[INFO] Rows: {len(df):,}")
-        vc = df["attack_step"].value_counts().sort_index()
+        from collections import Counter
+        step_counts = Counter()
+        unmapped_names = Counter()
+        for chunk in pd.read_csv(OUTPUT_FILENAME, usecols=["attack_step", "attack_name"],
+                                 chunksize=500_000, low_memory=False):
+            step_counts.update(chunk["attack_step"].value_counts().to_dict())
+            bad = chunk[chunk["attack_step"] == -1]["attack_name"]
+            unmapped_names.update(bad.value_counts().to_dict())
+        total = sum(step_counts.values())
+        print(f"[INFO] Rows: {total:,}")
         print("[INFO] Kill-chain step distribution:")
-        for step, cnt in vc.items():
+        for step, cnt in sorted(step_counts.items()):
             print(f"  Step {step:2d}: {cnt:,}")
-        unmapped = df[df["attack_step"] == -1]["attack_name"].value_counts()
-        if len(unmapped):
-            print(f"[WARNING] Unmapped: {unmapped.to_dict()}")
+        if unmapped_names:
+            print(f"[WARNING] Unmapped: {dict(unmapped_names)}")

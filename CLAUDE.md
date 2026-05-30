@@ -128,7 +128,7 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 | CIC-DDoS2019 | `cic-ddos2019/` | 431k | 0,3,7 | Kaggle `dhoogla/cicddos2019` | 17개 parquet, 전체 재다운로드 |
 | Bot-IoT | `bot-iot/` | 73.4M | 0,1,7 | Kaggle `vigneshvenkateswaran/bot-iot` | 75 CSV, process() 청크처리 |
 | CIC-IDS2017 Imp. | `cicids2017-imp/` | 2.1M | 0,1,4,6,7 | distrinet URL (328MB) | Liu et al. 2022 |
-| CSE-CIC-IDS2018 Imp. | `cicids2018-imp/` | 다운로드 중 | 0,1,4,6,7 | distrinet URL (9.7GB) | Liu et al. 2022 |
+| CSE-CIC-IDS2018 Imp. | `cicids2018-imp/` | 63.2M | 0,4,6,7 | distrinet URL (9.7GB) | Liu et al. 2022 |
 | Kitsune | `kitsune/` | 1.8M | 0,1,4,6,7 | Kaggle `ymirsky/network-attack-dataset-kitsune` | 라이선스 불필요 |
 | IoT-23 | `iot-23/` | 2.6M | 0,1,6,7 | 공식 CTU 사이트 | Zeek conn.log 파싱 |
 

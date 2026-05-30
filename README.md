@@ -76,7 +76,7 @@ Source: https://intrusion-detection.distrinet-research.be/CNS2022/
 | Dataset | Tags | Rows | Steps | Notes |
 |---|---|---|---|---|
 | **[CIC-IDS2017 Improved](./cicids2017-imp)** | general-purpose, dos-ddos, web-attacks, brute-force, scan, botnet | 2.1M | 0,1,4,6,7 | `CICIDS2017_improved.zip` (328 MB) |
-| **[CSE-CIC-IDS2018 Improved](./cicids2018-imp)** | general-purpose, dos-ddos, web-attacks, brute-force, scan, botnet | ~10M+ | 0,1,4,6,7 | `CSECICIDS2018_improved.zip` (9.7 GB) |
+| **[CSE-CIC-IDS2018 Improved](./cicids2018-imp)** | general-purpose, dos-ddos, web-attacks, brute-force, scan, botnet | 63.2M | 0,4,6,7 | `CSECICIDS2018_improved.zip` (9.7 GB) |
 
 ### Phase 2 — Pending (Kaggle license acceptance required)
 
