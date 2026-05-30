@@ -11,33 +11,39 @@
 set -euo pipefail
 
 DATASETS=(
+    # Phase 1 — Original Collection
     cicids2017
     cicids2018
     ciciot2023
-    nsl-kdd
-    unsw-nb15
     ton-iot
-    mirai
+    # mirai: pre-processed files included in repo; no download.py
     EPIC_Attack_Datasets
     edge-iiot
     xiiotid
     nf-ton-iot-v3
     wustl-iiot-2021
     lspr23
+    # Phase 2 — Expansion
     kddcup1999
+    nsl-kdd
+    unsw-nb15
     ctu-13
-    bot-iot
-    iot-23
-    cic-ddos2019
     n-baiot
     cidds-001
     cidds-002
     iotid20
     hikari-2021
+    insdn
+    bot-iot
+    cic-ddos2019
+    kitsune
+    iot-23
+    # Phase 2 — Improved CIC-IDS (Liu et al., 2022)
+    cicids2017-imp
+    cicids2018-imp
+    # Phase 2 — Pending (Kaggle license acceptance required before running)
     awid2
     awid3
-    kitsune
-    insdn
 )
 
 if [ $# -gt 0 ]; then
