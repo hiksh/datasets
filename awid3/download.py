@@ -1,18 +1,37 @@
+"""
+AWID3 — Aegean Wi-Fi Intrusion Dataset 3
+Source: Kaggle chatzoglou/awid3
+        (license acceptance required at https://www.kaggle.com/datasets/chatzoglou/awid3)
+
+Environment: 802.11 Wi-Fi SOHO testbed
+Attacks: 13 Wi-Fi attack categories including KRACK, Kr00k, deauth, probe attacks
+"""
 import kagglehub
 import os
 import pandas as pd
 
-KAGGLE_DATASET = "vigneshvenkateswaran/bot-iot"
-INPUT_FILENAME = "Bot-IoT.csv"
-OUTPUT_FILENAME = "Reformatted_Bot-IoT.csv"
+KAGGLE_DATASET = "chatzoglou/awid3"
+INPUT_FILENAME = "AWID3.csv"
+OUTPUT_FILENAME = "Reformatted_AWID3.csv"
 
-# Bot-IoT attack categories → kill-chain step
+# AWID3 class → kill-chain step
 KILL_CHAIN = {
     "normal": 0,
-    "reconnaissance": 1,    # OS fingerprint, service scan
-    "ddos": 7,              # DDoS (UDP, TCP, HTTP)
-    "dos": 7,               # DoS (UDP, TCP, HTTP)
-    "theft": 7,             # Data exfiltration, keylogging
+    # Reconnaissance
+    "probe_request_flood": 1,
+    "probe_response_flood": 1,
+    "beacon_flood": 1,
+    # Exploitation
+    "krack": 4,            # Key Reinstallation Attack → Exploitation
+    "kr00k": 4,            # Kr00k vulnerability → Exploitation
+    "icv_error": 4,        # Integrity Check Value error exploit → Exploitation
+    "michael_mic_failure": 4,
+    # Actions on Objectives
+    "deauthentication": 7,
+    "disassociation": 7,
+    "power_saving_dos": 7,
+    "rts_flood": 7,
+    "cts_flood": 7,
 }
 
 
@@ -27,6 +46,8 @@ def find_all_csvs(base_path):
 
 def download():
     print(f"[INFO] Downloading from Kaggle: {KAGGLE_DATASET}")
+    print("[INFO] NOTE: This dataset requires accepting the license on Kaggle.")
+    print("[INFO] Visit: https://www.kaggle.com/datasets/chatzoglou/awid3")
     path = kagglehub.dataset_download(KAGGLE_DATASET)
 
     csvs = find_all_csvs(path)
@@ -34,48 +55,46 @@ def download():
         raise RuntimeError(f"No CSV found in {path}. Files: {os.listdir(path)}")
 
     print(f"[INFO] Found {len(csvs)} CSV file(s)")
-
     dst = os.path.join(os.getcwd(), INPUT_FILENAME)
     first_write = True
     total_rows = 0
-    all_cats = set()
 
     for csv_path in csvs:
         try:
             df_part = pd.read_csv(csv_path, low_memory=False)
-            n = len(df_part)
             df_part.to_csv(dst, index=False, mode="w" if first_write else "a", header=first_write)
             first_write = False
-            total_rows += n
-            if "category" in df_part.columns:
-                all_cats.update(df_part["category"].dropna().unique())
-            print(f"[INFO] {os.path.basename(csv_path)}: {n:,} rows  (total so far: {total_rows:,})")
+            total_rows += len(df_part)
+            print(f"[INFO] {os.path.basename(csv_path)}: {len(df_part):,} rows")
         except Exception as e:
             print(f"[WARN] Skipping {csv_path}: {e}")
 
     print(f"[INFO] Saved as: {dst}  (total {total_rows:,} rows)")
-    print(f"[INFO] Unique categories: {sorted(all_cats)}")
+    df = pd.read_csv(dst, nrows=5)
+    print(f"[INFO] Columns ({len(df.columns)}): {df.columns.tolist()[:10]}...")
+    label_col = "Label" if "Label" in df.columns else df.columns[-1]
+    print(f"[INFO] Unique labels: {sorted(df[label_col].dropna().unique().tolist())}")
 
 
 def process(input_filepath, output_filepath):
     print(f"[INFO] Reading: {input_filepath}")
     df = pd.read_csv(input_filepath, low_memory=False)
 
-    # category → attack_name, attack (0/1) → attack_flag
-    if "category" in df.columns:
-        df.rename(columns={"category": "attack_name"}, inplace=True)
-    if "attack" in df.columns:
-        df.rename(columns={"attack": "attack_flag"}, inplace=True)
-    # drop subcategory (redundant with attack_name + attack_step)
-    df.drop(columns=["subcategory "], errors="ignore", inplace=True)
-    df.drop(columns=["subcategory"], errors="ignore", inplace=True)
+    label_col = None
+    for candidate in ["Label", "label", "Class", "class", "attack_type"]:
+        if candidate in df.columns:
+            label_col = candidate
+            break
+    if label_col is None:
+        label_col = df.columns[-1]
 
-    df["attack_flag"] = pd.to_numeric(df["attack_flag"], errors="coerce").fillna(0).astype(int)
+    df.rename(columns={label_col: "attack_name"}, inplace=True)
+    df["attack_flag"] = (df["attack_name"].astype(str).str.strip().str.lower() != "normal").astype(int)
 
     name_series = df["attack_name"].astype(str).str.strip().str.lower()
     unmapped = name_series[~name_series.isin(KILL_CHAIN)].unique()
-    if len(unmapped) > 0:
-        print(f"[WARNING] Unmapped categories: {unmapped}")
+    if len(unmapped):
+        print(f"[WARNING] Unmapped labels: {unmapped}")
     df["attack_step"] = name_series.map(KILL_CHAIN).fillna(-1).astype(int)
 
     target_columns = ["attack_name", "attack_flag", "attack_step"]
@@ -92,8 +111,6 @@ if __name__ == "__main__":
         download()
     else:
         print(f"[INFO] {INPUT_FILENAME} already exists, skipping download.")
-        df = pd.read_csv(INPUT_FILENAME, nrows=0)
-        print(f"[INFO] Columns ({len(df.columns)}): {df.columns.tolist()}")
 
     if not os.path.exists(OUTPUT_FILENAME):
         process(INPUT_FILENAME, OUTPUT_FILENAME)

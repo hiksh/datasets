@@ -1,18 +1,29 @@
 import kagglehub
 import os
+import shutil
 import pandas as pd
 
-KAGGLE_DATASET = "vigneshvenkateswaran/bot-iot"
-INPUT_FILENAME = "Bot-IoT.csv"
-OUTPUT_FILENAME = "Reformatted_Bot-IoT.csv"
+KAGGLE_DATASET = "mrwellsdavid/unsw-nb15"
+INPUT_FILENAME = "UNSW-NB15.csv"
+OUTPUT_FILENAME = "Reformatted_UNSW-NB15.csv"
 
-# Bot-IoT attack categories → kill-chain step
+# attack_cat → kill-chain step
 KILL_CHAIN = {
     "normal": 0,
-    "reconnaissance": 1,    # OS fingerprint, service scan
-    "ddos": 7,              # DDoS (UDP, TCP, HTTP)
-    "dos": 7,               # DoS (UDP, TCP, HTTP)
-    "theft": 7,             # Data exfiltration, keylogging
+    # Reconnaissance
+    "reconnaissance": 1,
+    "analysis": 1,       # network analysis / scanning
+    "fuzzers": 1,        # probing for vulnerabilities
+    # Exploitation
+    "exploits": 4,
+    "shellcode": 4,      # shellcode delivery
+    "generic": 4,        # generic attack patterns
+    # Installation
+    "backdoor": 5,
+    # C&C
+    "worms": 6,
+    # Actions on Objectives
+    "dos": 7,
 }
 
 
@@ -29,46 +40,37 @@ def download():
     print(f"[INFO] Downloading from Kaggle: {KAGGLE_DATASET}")
     path = kagglehub.dataset_download(KAGGLE_DATASET)
 
-    csvs = find_all_csvs(path)
-    if not csvs:
-        raise RuntimeError(f"No CSV found in {path}. Files: {os.listdir(path)}")
+    # Use the official train/test split files
+    train_src = os.path.join(path, "UNSW_NB15_training-set.csv")
+    test_src = os.path.join(path, "UNSW_NB15_testing-set.csv")
 
-    print(f"[INFO] Found {len(csvs)} CSV file(s)")
+    if not os.path.exists(train_src) or not os.path.exists(test_src):
+        csvs = find_all_csvs(path)
+        raise RuntimeError(
+            f"Expected training/testing CSV not found in {path}.\n"
+            f"Available files: {[os.path.basename(c) for c in csvs]}"
+        )
 
     dst = os.path.join(os.getcwd(), INPUT_FILENAME)
-    first_write = True
-    total_rows = 0
-    all_cats = set()
-
-    for csv_path in csvs:
-        try:
-            df_part = pd.read_csv(csv_path, low_memory=False)
-            n = len(df_part)
-            df_part.to_csv(dst, index=False, mode="w" if first_write else "a", header=first_write)
-            first_write = False
-            total_rows += n
-            if "category" in df_part.columns:
-                all_cats.update(df_part["category"].dropna().unique())
-            print(f"[INFO] {os.path.basename(csv_path)}: {n:,} rows  (total so far: {total_rows:,})")
-        except Exception as e:
-            print(f"[WARN] Skipping {csv_path}: {e}")
-
-    print(f"[INFO] Saved as: {dst}  (total {total_rows:,} rows)")
-    print(f"[INFO] Unique categories: {sorted(all_cats)}")
+    df_train = pd.read_csv(train_src, low_memory=False)
+    df_test = pd.read_csv(test_src, low_memory=False)
+    df = pd.concat([df_train, df_test], ignore_index=True)
+    df.to_csv(dst, index=False)
+    print(f"[INFO] Saved as: {dst}  ({len(df):,} rows)")
+    print(f"[INFO] Columns ({len(df.columns)}): {df.columns.tolist()}")
+    print(f"[INFO] Unique attack_cat: {sorted(df['attack_cat'].dropna().unique().tolist())}")
 
 
 def process(input_filepath, output_filepath):
     print(f"[INFO] Reading: {input_filepath}")
     df = pd.read_csv(input_filepath, low_memory=False)
 
-    # category → attack_name, attack (0/1) → attack_flag
-    if "category" in df.columns:
-        df.rename(columns={"category": "attack_name"}, inplace=True)
-    if "attack" in df.columns:
-        df.rename(columns={"attack": "attack_flag"}, inplace=True)
-    # drop subcategory (redundant with attack_name + attack_step)
-    df.drop(columns=["subcategory "], errors="ignore", inplace=True)
-    df.drop(columns=["subcategory"], errors="ignore", inplace=True)
+    # Drop row id (not a feature)
+    df.drop(columns=["id"], errors="ignore", inplace=True)
+
+    # attack_cat → attack_name, label → attack_flag
+    df.rename(columns={"attack_cat": "attack_name"}, inplace=True)
+    df.rename(columns={"label": "attack_flag"}, inplace=True)
 
     df["attack_flag"] = pd.to_numeric(df["attack_flag"], errors="coerce").fillna(0).astype(int)
 
@@ -85,6 +87,9 @@ def process(input_filepath, output_filepath):
     print(f"[INFO] Saving: {output_filepath}")
     df.to_csv(output_filepath, index=False)
     print(f"[INFO] Done. Rows: {len(df):,}")
+    vc = df["attack_step"].value_counts().sort_index()
+    for step, cnt in vc.items():
+        print(f"  Step {step:2d}: {cnt:,}")
 
 
 if __name__ == "__main__":

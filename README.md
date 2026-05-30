@@ -39,8 +39,8 @@ When you run the `download.py` scripts, they do not just download the raw CSV fi
 |---|---|---|
 | **[CICIDS2017](./cicids2017)** / **[CICIDS2018](./cicids2018)** | general-purpose, dos-ddos, web-attacks, brute-force, scan, infiltration, botnet | Verified |
 | **[CICIoT2023](./ciciot2023)** | iot, general-purpose | Verified |
-| **[NSL-KDD](./nsl-kdd)** | general-purpose, anomaly | Verified |
-| **[UNSW-NB15](./unsw-nb15)** | general-purpose, anomaly | Verified |
+| **[NSL-KDD](./nsl-kdd)** | general-purpose, anomaly | Verified (download.py added) |
+| **[UNSW-NB15](./unsw-nb15)** | general-purpose, anomaly | Verified (download.py added) |
 | **[ToN-IoT](./ton-iot)** | iiot-ics, general-purpose | Verified |
 | **[Mirai Botnet Dataset](./mirai)** | iot, botnet | Verified |
 | **[EPIC Attack Datasets](./EPIC_Attack_Datasets)** | apt | Verified |
@@ -61,27 +61,32 @@ When you run the `download.py` scripts, they do not just download the raw CSV fi
 | **[CIDDS-002](./cidds-002)** | general-purpose, scan | 2.6M | 0,1 | Scan attacks |
 | **[IoTID20](./iotid20)** | iot | 626k | 0,1,4,6,7 | Mirai, DoS, Scan, MITM ARP |
 | **[HIKARI-2021](./hikari-2021)** | general-purpose | 555k | 0,1,4,7 | Probing, Bruteforce, CryptoMiner |
+| **[NSL-KDD](./nsl-kdd)** (new download.py) | general-purpose, anomaly | 148k | 0,1,4,5,6,7 | Kaggle: hassan06/nslkdd |
+| **[UNSW-NB15](./unsw-nb15)** (new download.py) | general-purpose, anomaly | 258k | 0,1,4,5,6,7 | Kaggle: mrwellsdavid/unsw-nb15 |
+| **[InSDN](./insdn)** | sdn | 344k | 0,1,4,6,7 | SDN environment, 8 attack types |
+| **[Bot-IoT](./bot-iot)** | iot, botnet, dos-ddos | ~3.6M | 0,1,7 | Full coverage after re-download |
+| **[CIC-DDoS2019](./cic-ddos2019)** | dos-ddos, general-purpose | 431k | 0,3,7 | 10+ DrDoS attack types |
 
-### Phase 2 — Partial (Re-download needed for full coverage)
+### Phase 2 — Improved CIC-IDS (Liu et al., 2022)
 
-These datasets have correct `download.py` scripts and working kill-chain mapping, but the current raw file was created from only a subset of source files. Delete the raw file and re-run `download.py` for full attack coverage.
+Fixed CICFlowMeter feature extraction and corrected labeling.  
+Source: https://intrusion-detection.distrinet-research.be/CNS2022/
 
-| Dataset | Tags | Current rows | Current labels | Raw file to delete |
-|---|---|---|---|---|
-| **[Bot-IoT](./bot-iot)** | iot, botnet, dos-ddos | 1M | Normal, Reconnaissance | `Bot-IoT.csv` |
-| **[CIC-DDoS2019](./cic-ddos2019)** | dos-ddos, general-purpose | 6.7k | Benign, DrDoS_DNS | `CIC-DDoS2019.csv` |
-
-### Phase 2 — Pending (Not yet verified)
-
-The following directories are excluded from version control (`.gitignore`) until a full re-download and kill-chain verification is complete.
-
-| Dataset | Tags | Reason |
+| Dataset | Tags | Notes |
 |---|---|---|
-| **Kitsune** | iot, anomaly | Full dataset ~54 GB; needs complete Kaggle re-download |
-| **IoT-23** | iot, botnet | Source CSV only contained benign flows (`-` labels) |
-| **InSDN** | sdn | Source CSV only contained Normal traffic |
-| **AWID2** | wireless | 745 source CSVs; sampled batch was all Normal |
-| **AWID3** | wireless | Same issue as AWID2 |
+| **[CIC-IDS2017 Improved](./cicids2017-imp)** | general-purpose, dos-ddos, web-attacks, brute-force, scan, botnet | 328 MB zip; wget from distrinet URL |
+| **[CSE-CIC-IDS2018 Improved](./cicids2018-imp)** | general-purpose, dos-ddos, web-attacks, brute-force, scan, botnet | 9.7 GB zip; wget from distrinet URL |
+
+### Phase 2 — Pending (License acceptance required on Kaggle)
+
+Run `python3 download.py` after accepting the dataset license at the URL shown.
+
+| Dataset | Tags | Kaggle URL | Status |
+|---|---|---|---|
+| **[Kitsune](./kitsune)** | iot, anomaly | kaggle.com/datasets/ymirsky/kitsune-network-attack-dataset | download.py ready |
+| **[AWID2](./awid2)** | wireless | kaggle.com/datasets/kolias93/awid2-wifi-intrusion-dataset | download.py ready |
+| **[AWID3](./awid3)** | wireless | kaggle.com/datasets/chatzoglou/awid3 | download.py ready |
+| **[IoT-23](./iot-23)** | iot, botnet | kaggle.com/datasets/pchaberger/iot-23-network-traffic-dataset | download.py ready |
 
 Full tag definitions and paths are in [`datasets.yaml`](./datasets.yaml).
 
@@ -90,9 +95,19 @@ Full tag definitions and paths are in [`datasets.yaml`](./datasets.yaml).
 ## Dataset Details
 
 ### KDDCup 1999
-- **Source:** `kddcup99` (scikit-learn built-in)
+- **Source:** `kddcup99` (scikit-learn built-in) / Kaggle `galaxyh/kdd-cup-1999-data`
 - **Label column:** `label` → renamed to `attack_name`
 - **Attack types:** smurf, neptune, normal, back, satan, ipsweep, portsweep, warezclient, teardrop, pod, nmap, guess_passwd, buffer_overflow, land, warezmaster, imap, rootkit, loadmodule, ftp_write, multihop, phf, perl, spy
+
+### NSL-KDD
+- **Source:** Kaggle `hassan06/nslkdd` (KDDTrain+.txt, KDDTest+.txt)
+- **Format:** 41 KDD features + label + difficulty score (43 cols)
+- **Attack types:** Probe (ipsweep, nmap, portsweep, satan, saint, mscan, ...), R2L (guess_passwd, ftp_write, ...), U2R (buffer_overflow, rootkit, ps, ...), DoS (neptune, smurf, back, apache2, mailbomb, ...)
+
+### UNSW-NB15
+- **Source:** Kaggle `mrwellsdavid/unsw-nb15`
+- **Label column:** `attack_cat` → `attack_name`, `label` → `attack_flag`
+- **Attack categories:** Normal (0), Reconnaissance (1), Analysis (1), Fuzzers (1), Exploits (4), Shellcode (4), Generic (4), Backdoor (5), Worms (6), DoS (7)
 
 ### CTU-13
 - **Source:** Kaggle `dhoogla/ctu13` (13 parquet files)
@@ -107,7 +122,6 @@ Full tag definitions and paths are in [`datasets.yaml`](./datasets.yaml).
   - `{device}.mirai.{syn,ack,udp,udpplain}.csv` → step=7
   - `{device}.gafgyt.{combo,junk,tcp,udp}.csv` → step=7
   - `{device}.gafgyt.scan.csv` → step=1
-- **Devices:** Danmini, Ecobee, Ennio, Philips B120N, Provision PT737E, Provision PT1, Samsung SNH, SimpleHome XCS7 1002, SimpleHome XCS7 1003
 
 ### CIDDS-001
 - **Source:** Kaggle `dhoogla/cidds001` (parquet)
@@ -125,18 +139,49 @@ Full tag definitions and paths are in [`datasets.yaml`](./datasets.yaml).
 - **Attack types:** Normal (step=0), Scan (step=1), MITM ARP Spoofing (step=4), Mirai (step=6), DoS (step=7)
 
 ### HIKARI-2021
-- **Source:** Kaggle `nilaychauhan/hikari-2021`
+- **Source:** Kaggle `kk0105/allflowmeter-hikari2021`
 - **Label columns:** `traffic_category` → `attack_name`, `Label` → `attack_flag`
 - **Attack types:** Background/Benign (step=0), Probing (step=1), Bruteforce/Bruteforce-XML (step=4), XMRIGCC CryptoMiner (step=7)
 
-### Bot-IoT *(partial)*
-- **Source:** Kaggle `anushonkar/bot-iot-dataset`
-- **Label columns:** `category` → `attack_name`, `attack` → `attack_flag`
-- **Current data:** Normal + Reconnaissance only. Re-download for DoS/DDoS/Theft coverage.
+### InSDN
+- **Source:** Kaggle `badcodebuilder/insdn-dataset`
+- **Environment:** Software-Defined Networking (SDN) with OpenFlow/OVS
+- **Attack types:** Normal (0), Probe (1), BFA/Web-Attack/U2R (4), BOTNET (6), DoS/DDoS (7)
+- **Files:** Normal_data.csv + metasploitable-2.csv + OVS.csv (concatenated)
 
-### CIC-DDoS2019 *(partial)*
-- **Source:** Kaggle `dhoogla/cicddos2019` (parquet)
-- **Current data:** Benign + DrDoS_DNS only. Re-download for full 10-attack-type coverage.
+### Bot-IoT
+- **Source:** Kaggle `vigneshvenkateswaran/bot-iot`
+- **Label columns:** `category` → `attack_name`, `attack` → `attack_flag`
+- **Attack types:** Normal (0), Reconnaissance (1), DoS/DDoS/Theft (7)
+
+### CIC-DDoS2019
+- **Source:** Kaggle `dhoogla/cicddos2019` (parquet, 17 files)
+- **Attack types:** Benign (0), TFTP (3), all DrDoS/DDoS/UDP flooding variants (7)
+
+### CIC-IDS2017 Improved *(Liu et al., 2022)*
+- **Source:** `https://intrusion-detection.distrinet-research.be/CNS2022/Datasets/CICIDS2017_improved.zip`
+- **Files:** monday.csv, tuesday.csv, wednesday.csv, thursday.csv, friday.csv
+- **Note:** Uses "Attempted" sub-label for flows intended as attacks with no malicious behavior
+
+### CSE-CIC-IDS2018 Improved *(Liu et al., 2022)*
+- **Source:** `https://intrusion-detection.distrinet-research.be/CNS2022/Datasets/CSECICIDS2018_improved.zip` (9.7 GB)
+- **Note:** Same fix approach as CIC-IDS2017 improved; requires significant disk space
+
+### Kitsune *(license required)*
+- **Source:** Kaggle `ymirsky/kitsune-network-attack-dataset`
+- **Structure:** 9 attack scenarios × `{scenario}_dataset.csv` (115 features) + `{scenario}_labels.csv`
+- **Attack scenarios:** ARP MitM (4), Active Wiretap (4), Fuzzing (1), SSDP Flood (7), SSL Renegotiation (7), SYN DoS (7), Mirai (6), OS Scan (1), Video Injection (4)
+
+### AWID2 / AWID3 *(license required)*
+- **Source:** Kaggle `kolias93/awid2-wifi-intrusion-dataset` / `chatzoglou/awid3`
+- **Environment:** 802.11 Wi-Fi SOHO testbed
+- **AWID2:** Deauthentication, injection, impersonation attacks
+- **AWID3:** 13 attack categories including KRACK, Kr00k, deauth/disassoc flood
+
+### IoT-23 *(license required)*
+- **Source:** Kaggle `pchaberger/iot-23-network-traffic-dataset`
+- **Note:** Source must contain `detailed_label` column with actual labels (not just `-`)
+- **Attack types:** C&C (6), PortScan (1), DDoS/DoS (7)
 
 ---
 
@@ -147,7 +192,7 @@ Full tag definitions and paths are in [`datasets.yaml`](./datasets.yaml).
 | Python 3.8+ | All datasets | — |
 | Python packages | All datasets | `pip install -r requirements.txt` |
 | Kaggle API key | All Kaggle-based datasets | `~/.kaggle/kaggle.json` ([guide](https://www.kaggle.com/docs/api)) |
-| `wget` | LSPR23 only | Linux/Mac: built-in · Windows: `winget install GnuWin32.Wget` or WSL |
+| `wget` | LSPR23, CIC-IDS improved | Linux/Mac: built-in · Windows: `winget install GnuWin32.Wget` or WSL |
 
 > **Windows note:** `download_all.sh` requires WSL or Git Bash. Individual `download.py` scripts run natively with Python.
 
@@ -205,32 +250,43 @@ python3 download.py
 
 **Result:** Downloads the archive, extracts it to `lspr23/LSPR23/`, then processes the 9.8 GB CSV in chunks. Output: `LSPR23/ls23pr_flows/Reformatted_LSPR23.csv`.
 
+### CIC-IDS2017 / CSE-CIC-IDS2018 Improved (Liu et al., 2022)
+
+These improved versions fix labeling errors and feature extraction bugs in the originals.
+
+```bash
+# CIC-IDS2017 improved (328MB zip)
+cd cicids2017-imp
+python3 download.py
+
+# CSE-CIC-IDS2018 improved (9.7GB zip — requires significant time and disk space)
+cd cicids2018-imp
+python3 download.py
+```
+
 ### Kitsune
 
 Kitsune consists of 9 attack scenarios, each with a separate `{scenario}_dataset.csv` (115 network-stat features, no header) and a matching `{scenario}_labels.csv`. The `download.py` script locates these pairs automatically, reads the feature files with correct column names (`feature_0` … `feature_114`), and merges them with the per-scenario kill-chain labels.
 
-> **Full dataset is ~54 GB.** The script samples up to 200,000 rows per scenario. If `Kitsune.csv` is absent, running `download.py` will trigger the full Kaggle download.
+> **License acceptance required.** Visit https://www.kaggle.com/datasets/ymirsky/kitsune-network-attack-dataset and accept the terms before running.
 
 ```bash
 cd kitsune
 python3 download.py
 ```
 
-**Result:** `Kitsune.csv` (merged, labeled) → `Reformatted_Kitsune.csv`.
+### AWID2 / AWID3 / IoT-23
 
-### Partial datasets (re-download for full coverage)
-
-For Bot-IoT and CIC-DDoS2019, the current Reformatted files have limited attack coverage because the original raw file was built from only a subset of the Kaggle source. Delete the raw input file and re-run:
+These datasets require accepting specific licenses on Kaggle before the download will work.
 
 ```bash
-# Bot-IoT: adds DoS, DDoS, Theft attack types
-rm bot-iot/Bot-IoT.csv
-cd bot-iot && python3 download.py
-
-# CIC-DDoS2019: adds all 10 DrDoS attack types
-rm cic-ddos2019/CIC-DDoS2019.csv
-cd cic-ddos2019 && python3 download.py
+# Accept license at Kaggle first, then:
+cd awid2 && python3 download.py
+cd awid3 && python3 download.py
+cd iot-23 && python3 download.py
 ```
+
+> **IoT-23 note:** The source `surajsooraj26/iot-23` only contains `-` labels (benign flows). Use `pchaberger/iot-23-network-traffic-dataset` instead.
 
 ### IIoT Datasets (Edge-IIoT, XIIoTID, NF-ToN-IoT-v3, WUSTL-IIoT-2021)
 
@@ -240,10 +296,6 @@ Each `download.py`:
 1. Downloads from Kaggle (skips if the raw CSV already exists locally).
 2. Validates that the expected columns are present.
 3. Applies the standardized `attack_name`, `attack_flag`, `attack_step` mapping.
-
-> **Note on NF-ToN-IoT-v3:** The Kaggle source (`seyhed/nf-ton-iot-v3`) may provide the full dataset; the previously stored file was a reduced subset. Column structure is identical.
-
-> **Note on WUSTL-IIoT-2021:** Uses a Kaggle re-upload. If column validation fails, download manually from the [WUSTL Edge Lab](https://www.cse.wustl.edu/~jain/iiot/index.html).
 
 ---
 

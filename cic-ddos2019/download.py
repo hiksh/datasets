@@ -9,9 +9,20 @@ OUTPUT_FILENAME = "Reformatted_CIC-DDoS2019.csv"
 # CIC-DDoS2019 Label → kill-chain step
 KILL_CHAIN = {
     "benign": 0,
+    # DrDoS amplification attacks (all are Actions on Objectives)
     "drdos_dns": 7, "drdos_ldap": 7, "drdos_mssql": 7, "drdos_netbios": 7,
     "drdos_ntp": 7, "drdos_snmp": 7, "drdos_ssdp": 7, "drdos_udp": 7,
-    "syn": 7, "udp-lag": 7,
+    # Direct DDoS/DoS flooding
+    "syn": 7,
+    "udp": 7,
+    "udp-lag": 7, "udplag": 7,
+    "webddos": 7,
+    # Amplification via specific protocols
+    "ldap": 7,
+    "mssql": 7,
+    "netbios": 7,
+    "portmap": 7,
+    "snmp": 7,
     "tftp": 3,  # TFTP used as delivery vector in amplification attacks
 }
 

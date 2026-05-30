@@ -123,3 +123,11 @@ kitsune:
 insdn:
   path: insdn/
   tags: [sdn]
+
+cicids2017-imp:
+  path: cicids2017-imp/
+  tags: [general-purpose, dos-ddos, web-attacks, brute-force, scan, botnet]
+
+cicids2018-imp:
+  path: cicids2018-imp/
+  tags: [general-purpose, dos-ddos, web-attacks, brute-force, scan, botnet]
