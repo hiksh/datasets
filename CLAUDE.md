@@ -162,12 +162,26 @@ KILL_CHAIN = {"benign": 0, "scan": 1, "exploit": 4, "c&c": 6, "ddos": 7, ...}
 df["attack_step"] = df["attack_name"].str.lower().map(KILL_CHAIN).fillna(-1).astype(int)
 ```
 
+### Kaggle 소스 403 현황 (2026-05-30 기준)
+
+전체 download.py의 Kaggle ID를 검증한 결과:
+
+| 상태 | Dataset | Kaggle ID |
+|---|---|---|
+| ❌ 403 | awid2 | kolias93/awid2-wifi-intrusion-dataset |
+| ❌ 403 | awid3 | chatzoglou/awid3 |
+| ✅ 정상 | 나머지 모두 | — |
+
+> awid2/3는 Kaggle 외에도 공식 사이트(icsdweb.aegean.gr) 이메일 요청 방식 가능.  
+> `python3 download.py register NAME LASTNAME EMAIL AFFIL`
+
 ### 알려진 이슈
 
 - **N-BaIoT**: 8.2 GB 파일이라 process()에서 chunked read 사용 (100k rows씩).
-- **CTU-13**: attack_name에 `flow=` prefix가 포함돼 있어 `str.replace(r"^flow=", "")` 처리.
-- **Bot-IoT**: `subcategory ` 컬럼에 trailing space 있음 → `errors="ignore"`로 drop.
-- **CIC-DDoS2019**: KILL_CHAIN에 `netbios`, `ldap`, `mssql`, `portmap`, `udp`, `webddos`, `udplag` 추가 필요 (v3 Kaggle 소스에 새로운 레이블 존재).
-- **NSL-KDD**: KDDTrain+.txt 외에 test 파일에는 원본에 없는 공격 타입 포함 (saint, mscan 등) → KILL_CHAIN 확장 완료.
-- **IoT-23**: Kaggle 소스 대신 공식 CTU 사이트(mcfp.felk.cvut.cz)에서 직접 스트리밍 다운로드. Zeek conn.log 형식 파싱 필요 (마지막 탭필드가 `tunnel_parents label detailed-label` 공백구분).
-- **Kitsune**: Kaggle `ymirsky/network-attack-dataset-kitsune` (라이선스 불필요). 구 URL `ymirsky/kitsune-network-attack-dataset`는 라이선스 필요 버전. Mirai Botnet 시나리오는 레이블 파일이 소문자(`mirai_labels.csv`) — 대소문자 무시 매칭 필요.
+- **Bot-IoT**: `subcategory ` 컬럼에 trailing space 있음 → `errors="ignore"`로 drop. 14 GB CSV라 process()도 500k chunked write 방식.
+- **CTU-13**: attack_name에 `flow=` prefix 포함 → `str.replace(r"^flow=", "")` 처리.
+- **CIC-DDoS2019**: v3 Kaggle 소스에 `netbios`, `ldap`, `mssql`, `portmap`, `udp`, `webddos`, `udplag` 등 신규 레이블 → KILL_CHAIN 확장 완료.
+- **NSL-KDD**: test 파일에 KDD'99에 없는 공격 타입 포함 (saint, mscan, apache2 등) → KILL_CHAIN 확장 완료.
+- **IoT-23**: Kaggle 대신 공식 CTU 사이트에서 스트리밍 다운로드. Zeek conn.log 형식, 마지막 탭필드가 `tunnel_parents  label  detailed-label` (공백구분).
+- **Kitsune**: Kaggle `ymirsky/network-attack-dataset-kitsune` (라이선스 불필요). `ymirsky/kitsune-network-attack-dataset`는 라이선스 필요 버전. Mirai Botnet 시나리오는 labels 파일명이 소문자 `mirai_labels.csv` → 대소문자 무시 매칭 필요. labels 형식 2종: 헤더+인덱스 컬럼(`x`) / 헤더없이 0/1만 (Mirai).
+- **n-baiot/nf-ton-iot-v3**: 캐시 손상 시 "Bad magic number" 오류 발생 → `rm -rf ~/.cache/kagglehub/datasets/{id}` 후 재실행.
