@@ -111,77 +111,71 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 
 > 마지막 업데이트: 2026-05-30
 
-### 완료된 datasets (커밋됨)
+### 전체 완료 datasets (데이터 검증됨, unmapped=0)
 
-| Dataset | 디렉토리 | 행 수 | Kill-chain steps | 특이사항 |
-|---|---|---|---|---|
-| KDDCup 1999 | `kddcup1999/` | 494k | 0,1,4,5,7 | scikit-learn 내장 |
-| CTU-13 | `ctu-13/` | 1.6M | 0,6 | 13개 parquet concat |
-| N-BaIoT | `n-baiot/` | 2.4M+ | 0,1,7 | 파일명에서 레이블 추출 |
-| CIDDS-001 | `cidds-001/` | 204k | 0,1,4 | parquet |
-| CIDDS-002 | `cidds-002/` | 2.6M | 0,1 | parquet |
-| IoTID20 | `iotid20/` | 626k | 0,1,4,6,7 | Cat 컬럼 사용 |
-| HIKARI-2021 | `hikari-2021/` | 555k | 0,1,4,7 | traffic_category 컬럼 |
-| NSL-KDD | `nsl-kdd/` | 148k | 0,1,4,5,6,7 | `hassan06/nslkdd` (KDDTrain+.txt) |
-| UNSW-NB15 | `unsw-nb15/` | 258k | 0,1,4,5,6,7 | `mrwellsdavid/unsw-nb15` |
-| InSDN | `insdn/` | 344k | 0,1,4,6,7 | `badcodebuilder/insdn-dataset` (3 CSV concat) |
-| CIC-DDoS2019 | `cic-ddos2019/` | 431k | 0,3,7 | 17개 parquet (전체 재다운로드 완료) |
-| Bot-IoT | `bot-iot/` | ~3.6M | 0,1,7 | 전체 재다운로드 진행 중 |
-| CIC-IDS2017 Imp. | `cicids2017-imp/` | ~1.1M | 0,1,4,6,7 | Liu et al. 2022, distrinet URL |
+| Dataset | 디렉토리 | 행 수 | Kill-chain steps | 소스 | 비고 |
+|---|---|---|---|---|---|
+| KDDCup 1999 | `kddcup1999/` | 494k | 0,1,4,5,7 | Kaggle `galaxyh/kdd-cup-1999-data` | — |
+| CTU-13 | `ctu-13/` | 1.6M | 0,6 | Kaggle `dhoogla/ctu13` | 13개 parquet concat |
+| N-BaIoT | `n-baiot/` | 2.4M+ | 0,1,7 | Kaggle `mkashifn/nbaiot-dataset` | 파일명 레이블 추출 |
+| CIDDS-001 | `cidds-001/` | 204k | 0,1,4 | Kaggle `dhoogla/cidds001` | parquet |
+| CIDDS-002 | `cidds-002/` | 2.6M | 0,1 | Kaggle `dhoogla/cidds002` | parquet |
+| IoTID20 | `iotid20/` | 626k | 0,1,4,6,7 | Kaggle `rohulaminlabid/iotid20-dataset` | Cat 컬럼 |
+| HIKARI-2021 | `hikari-2021/` | 555k | 0,1,4,7 | Kaggle `kk0105/allflowmeter-hikari2021` | traffic_category 컬럼 |
+| NSL-KDD | `nsl-kdd/` | 148k | 0,1,4,5,6,7 | Kaggle `hassan06/nslkdd` | KDDTrain+.txt 파싱 |
+| UNSW-NB15 | `unsw-nb15/` | 258k | 0,1,4,5,6,7 | Kaggle `mrwellsdavid/unsw-nb15` | 10개 attack_cat |
+| InSDN | `insdn/` | 344k | 0,1,4,6,7 | Kaggle `badcodebuilder/insdn-dataset` | 3 CSV concat |
+| CIC-DDoS2019 | `cic-ddos2019/` | 431k | 0,3,7 | Kaggle `dhoogla/cicddos2019` | 17개 parquet, 전체 재다운로드 |
+| Bot-IoT | `bot-iot/` | 73.4M | 0,1,7 | Kaggle `vigneshvenkateswaran/bot-iot` | 75 CSV, process() 청크처리 |
+| CIC-IDS2017 Imp. | `cicids2017-imp/` | 2.1M | 0,1,4,6,7 | distrinet URL (328MB) | Liu et al. 2022 |
+| CSE-CIC-IDS2018 Imp. | `cicids2018-imp/` | 다운로드 중 | 0,1,4,6,7 | distrinet URL (9.7GB) | Liu et al. 2022 |
+| Kitsune | `kitsune/` | 1.8M | 0,1,4,6,7 | Kaggle `ymirsky/network-attack-dataset-kitsune` | 라이선스 불필요 |
+| IoT-23 | `iot-23/` | 2.6M | 0,1,6,7 | 공식 CTU 사이트 | Zeek conn.log 파싱 |
 
-### 신규 완료 (라이선스 불필요, 검증 완료)
+### download.py 있음, 데이터 미취득 (Kaggle 라이선스 수락 필요)
 
-| Dataset | 디렉토리 | 행 수 | Kill-chain steps | 소스 |
-|---|---|---|---|---|
-| Kitsune | `kitsune/` | 1.8M | 0,1,4,6,7 | Kaggle `ymirsky/network-attack-dataset-kitsune` (라이선스 불필요) |
-| IoT-23 | `iot-23/` | 2.6M | 0,1,6,7 | 공식 CTU 사이트 직접 wget |
-
-### download.py만 있는 datasets (Kaggle 라이선스 수락 후 실행 가능)
-
-| Dataset | 디렉토리 | Kaggle 소스 | 라이선스 URL |
+| Dataset | 디렉토리 | Kaggle 소스 | 대안 |
 |---|---|---|---|
-| AWID2 | `awid2/` | `kolias93/awid2-wifi-intrusion-dataset` | kaggle.com/datasets/kolias93/awid2-wifi-intrusion-dataset |
-| AWID3 | `awid3/` | `chatzoglou/awid3` | kaggle.com/datasets/chatzoglou/awid3 |
+| AWID2 | `awid2/` | `kolias93/awid2-wifi-intrusion-dataset` | `python3 download.py register NAME LAST EMAIL AFFIL` |
+| AWID3 | `awid3/` | `chatzoglou/awid3` | `python3 download.py register NAME LAST EMAIL AFFIL` |
 
-### 보류 중 (소스 미확인 또는 대용량)
+### download.py 있음, 데이터 미취득 (기타)
 
 | Dataset | 디렉토리 | 이유 |
 |---|---|---|
-| CSE-CIC-IDS2018 Imp. | `cicids2018-imp/` | 9.7 GB 압축파일, 다운로드 시간 과다 |
-| Mirai Botnet Dataset | `mirai/` | download.py 없음 (pcap + label 파일 기반, 별도 처리 필요) |
+| Mirai Botnet Dataset | `mirai/` | download.py 없음 (pcap + label 파일 기반, 처리 방식 미정) |
 
 ### 코드 구조 (모든 download.py 공통 패턴)
 
 ```python
-# 표준 출력 형식
-target_columns = ["attack_name", "attack_flag", "attack_step"]
-df = df[feature_columns + target_columns]  # 마지막 3컬럼 고정
+KAGGLE_DATASET = "author/dataset-name"
+INPUT_FILENAME  = "DatasetName.csv"        # 원본 concat/중간파일
+OUTPUT_FILENAME = "Reformatted_DatasetName.csv"  # 최종 표준 포맷
 
-# kill-chain 매핑
 KILL_CHAIN = {"benign": 0, "scan": 1, "exploit": 4, "c&c": 6, "ddos": 7, ...}
-df["attack_step"] = df["attack_name"].str.lower().map(KILL_CHAIN).fillna(-1).astype(int)
+
+def download():   # Kaggle/URL에서 다운로드 → INPUT_FILENAME 생성
+def process():    # INPUT_FILENAME → OUTPUT_FILENAME (표준 3컬럼 추가)
+
+# 표준 출력 포맷: feature_columns... | attack_name | attack_flag | attack_step
 ```
 
-### Kaggle 소스 403 현황 (2026-05-30 기준)
+### Kaggle 소스 403 현황 (2026-05-30 전수 검증)
 
-전체 download.py의 Kaggle ID를 검증한 결과:
-
-| 상태 | Dataset | Kaggle ID |
+| 상태 | Dataset (download.py 실제 ID) | 비고 |
 |---|---|---|
-| ❌ 403 | awid2 | kolias93/awid2-wifi-intrusion-dataset |
-| ❌ 403 | awid3 | chatzoglou/awid3 |
-| ✅ 정상 | 나머지 모두 | — |
-
-> awid2/3는 Kaggle 외에도 공식 사이트(icsdweb.aegean.gr) 이메일 요청 방식 가능.  
-> `python3 download.py register NAME LASTNAME EMAIL AFFIL`
+| ❌ 403 | awid2: `kolias93/awid2-wifi-intrusion-dataset` | 공식 사이트 이메일 요청 가능 |
+| ❌ 403 | awid3: `chatzoglou/awid3` | 동일 |
+| ✅ 정상 | 나머지 모두 (17개) | — |
 
 ### 알려진 이슈
 
-- **N-BaIoT**: 8.2 GB 파일이라 process()에서 chunked read 사용 (100k rows씩).
-- **Bot-IoT**: `subcategory ` 컬럼에 trailing space 있음 → `errors="ignore"`로 drop. 14 GB CSV라 process()도 500k chunked write 방식.
-- **CTU-13**: attack_name에 `flow=` prefix 포함 → `str.replace(r"^flow=", "")` 처리.
-- **CIC-DDoS2019**: v3 Kaggle 소스에 `netbios`, `ldap`, `mssql`, `portmap`, `udp`, `webddos`, `udplag` 등 신규 레이블 → KILL_CHAIN 확장 완료.
-- **NSL-KDD**: test 파일에 KDD'99에 없는 공격 타입 포함 (saint, mscan, apache2 등) → KILL_CHAIN 확장 완료.
-- **IoT-23**: Kaggle 대신 공식 CTU 사이트에서 스트리밍 다운로드. Zeek conn.log 형식, 마지막 탭필드가 `tunnel_parents  label  detailed-label` (공백구분).
-- **Kitsune**: Kaggle `ymirsky/network-attack-dataset-kitsune` (라이선스 불필요). `ymirsky/kitsune-network-attack-dataset`는 라이선스 필요 버전. Mirai Botnet 시나리오는 labels 파일명이 소문자 `mirai_labels.csv` → 대소문자 무시 매칭 필요. labels 형식 2종: 헤더+인덱스 컬럼(`x`) / 헤더없이 0/1만 (Mirai).
-- **n-baiot/nf-ton-iot-v3**: 캐시 손상 시 "Bad magic number" 오류 발생 → `rm -rf ~/.cache/kagglehub/datasets/{id}` 후 재실행.
+- **Bot-IoT**: `subcategory ` 컬럼 trailing space → `errors="ignore"`. 14GB CSV라 process() 500k 청크 방식.
+- **CTU-13**: attack_name에 `flow=` prefix → `str.replace(r"^flow=", "")`.
+- **CIC-DDoS2019**: Kaggle v3 소스에 `netbios/ldap/mssql/portmap/udp/webddos/udplag` 신규 레이블 추가됨 → KILL_CHAIN 확장 완료.
+- **NSL-KDD**: KDDTest+.txt에 KDD'99에 없는 공격 타입 포함(saint/mscan/apache2 등) → KILL_CHAIN 확장 완료.
+- **CIC-DDoS2019**: KILL_CHAIN에 `netbios`, `ldap`, `mssql`, `portmap`, `udp`, `webddos`, `udplag` 등 신규 레이블 → 확장 완료.
+- **IoT-23**: 공식 CTU 사이트 스트리밍. Zeek conn.log 마지막 탭필드 `tunnel_parents  label  detailed-label` (공백구분). okiru/okiru-attack/c&c-heartbeat-filedownload KILL_CHAIN 추가 완료.
+- **Kitsune**: `ymirsky/network-attack-dataset-kitsune` (라이선스 불필요). Mirai Botnet labels 파일 소문자(`mirai_labels.csv`) → 대소문자 무시 매칭. labels 형식 2종: 헤더+인덱스컬럼(`x`), 헤더없이 0/1 (Mirai).
+- **CIC-IDS2017/2018 Imp.**: `- Attempted` suffix 레이블 → step 0 처리 (공격 의도지만 실제 악성 행동 없음).
+- **n-baiot/nf-ton-iot-v3**: 캐시 손상 시 "Bad magic number" → `rm -rf ~/.cache/kagglehub/datasets/{id}` 후 재실행.
