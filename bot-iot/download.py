@@ -58,33 +58,45 @@ def download():
 
 
 def process(input_filepath, output_filepath):
-    print(f"[INFO] Reading: {input_filepath}")
-    df = pd.read_csv(input_filepath, low_memory=False)
-
-    # category → attack_name, attack (0/1) → attack_flag
-    if "category" in df.columns:
-        df.rename(columns={"category": "attack_name"}, inplace=True)
-    if "attack" in df.columns:
-        df.rename(columns={"attack": "attack_flag"}, inplace=True)
-    # drop subcategory (redundant with attack_name + attack_step)
-    df.drop(columns=["subcategory "], errors="ignore", inplace=True)
-    df.drop(columns=["subcategory"], errors="ignore", inplace=True)
-
-    df["attack_flag"] = pd.to_numeric(df["attack_flag"], errors="coerce").fillna(0).astype(int)
-
-    name_series = df["attack_name"].astype(str).str.strip().str.lower()
-    unmapped = name_series[~name_series.isin(KILL_CHAIN)].unique()
-    if len(unmapped) > 0:
-        print(f"[WARNING] Unmapped categories: {unmapped}")
-    df["attack_step"] = name_series.map(KILL_CHAIN).fillna(-1).astype(int)
+    print(f"[INFO] Reading header: {input_filepath}")
+    header_df = pd.read_csv(input_filepath, nrows=0)
+    rename_map = {}
+    if "category" in header_df.columns:
+        rename_map["category"] = "attack_name"
+    if "attack" in header_df.columns:
+        rename_map["attack"] = "attack_flag"
+    drop_cols = [c for c in ["subcategory ", "subcategory"] if c in header_df.columns]
 
     target_columns = ["attack_name", "attack_flag", "attack_step"]
-    feature_columns = [c for c in df.columns if c not in target_columns]
-    df = df[feature_columns + target_columns]
+    feature_columns = [c for c in header_df.rename(columns=rename_map).columns
+                       if c not in target_columns and c not in drop_cols]
 
+    print(f"[INFO] Writing (chunked): {output_filepath}")
+    first_write = True
+    total_rows = 0
+    unmapped_all = set()
+
+    for chunk in pd.read_csv(input_filepath, chunksize=500_000, low_memory=False):
+        chunk.rename(columns=rename_map, inplace=True)
+        chunk.drop(columns=drop_cols, errors="ignore", inplace=True)
+
+        chunk["attack_flag"] = pd.to_numeric(chunk["attack_flag"], errors="coerce").fillna(0).astype(int)
+
+        name_series = chunk["attack_name"].astype(str).str.strip().str.lower()
+        unmapped = set(name_series[~name_series.isin(KILL_CHAIN)].unique())
+        unmapped_all.update(unmapped)
+        chunk["attack_step"] = name_series.map(KILL_CHAIN).fillna(-1).astype(int)
+
+        col_order = [c for c in feature_columns if c in chunk.columns] + target_columns
+        chunk = chunk[col_order]
+        chunk.to_csv(output_filepath, index=False, mode="w" if first_write else "a", header=first_write)
+        first_write = False
+        total_rows += len(chunk)
+
+    if unmapped_all:
+        print(f"[WARNING] Unmapped categories: {unmapped_all}")
     print(f"[INFO] Saving: {output_filepath}")
-    df.to_csv(output_filepath, index=False)
-    print(f"[INFO] Done. Rows: {len(df):,}")
+    print(f"[INFO] Done. Rows: {total_rows:,}")
 
 
 if __name__ == "__main__":
