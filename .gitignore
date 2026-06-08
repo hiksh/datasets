@@ -90,3 +90,17 @@ catboost_info
 lspr23/LSPR23/
 lspr23_demo.py
 read_100_lines.ipynb
+
+
+# Phase 2 datasets pending re-download or license acceptance
+# Only data files are ignored; download.py scripts are tracked
+iot-23/*.csv
+iot-23/*.parquet
+insdn/*.csv
+insdn/*.parquet
+awid2/*.csv
+awid2/*.parquet
+awid3/*.csv
+awid3/*.parquet
+kitsune/*.csv
+kitsune/*.parquet

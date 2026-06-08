@@ -6,7 +6,8 @@ import shutil
 import random
 
 def extract_header(fname):
-    with open(fname, "r") as f:
+    # 읽기 모드에 utf-8 인코딩 및 에러 무시 추가
+    with open(fname, "r", encoding="utf-8", errors="ignore") as f:
         header = f.readline()
         tmp = header.split(",")
         
@@ -18,7 +19,8 @@ def extract_header(fname):
         attr.append("attack_flag")
         attr.append("attack_step")
 
-        with open("header", "w") as of:
+        # 쓰기 모드에 utf-8 추가
+        with open("header", "w", encoding="utf-8") as of:
             of.write(','.join(attr))
 
 def combine_all(files):
@@ -27,17 +29,20 @@ def combine_all(files):
     lines = {}
     for fname in files:
         lines[fname] = 0
-        with open(fname, "r") as f:
+        # 읽기 모드에 utf-8 인코딩 및 에러 무시 추가
+        with open(fname, "r", encoding="utf-8", errors="ignore") as f:
             for line in f:
                 lines[fname] += 1
 
-    with open("train", "w") as of1:
-        with open("test", "w") as of2:
+    # 쓰기 모드에 utf-8 추가
+    with open("train", "w", encoding="utf-8") as of1:
+        with open("test", "w", encoding="utf-8") as of2:
             for fname in files:
                 logging.info(" - Add the file: {}".format(fname))
                 tmax = lines[fname] * 0.5
                 num = 0
-                with open(fname, "r") as f:
+                # 읽기 모드에 utf-8 추가
+                with open(fname, "r", encoding="utf-8", errors="ignore") as f:
                     f.readline()
                     for line in f:
                         if "NaN" in line or "Infinity" in line:
@@ -50,18 +55,21 @@ def combine_all(files):
     
                         out = "{},{}\n".format(','.join(tmp[:-1]), label)
                         rand = random.random()
-                        #if num < tmax:
+                        
                         if rand < 0.7:
                             of1.write(out)
                         else:
                             of2.write(out)
                         num += 1
 
-    with open("labels", "w") as of:
+    # 쓰기 모드에 utf-8 추가
+    with open("labels", "w", encoding="utf-8") as of:
         of.write(','.join(labels))
 
 def label_attack_step():
-    header = open("header", "r").readline()
+    # 읽기 모드에 utf-8 추가
+    with open("header", "r", encoding="utf-8") as hf:
+        header = hf.readline()
 
     step = {}
     step["benign"] = "benign"
@@ -80,9 +88,10 @@ def label_attack_step():
     step["dos goldeneye"] = "action"
     step["heartbleed"] = "infection"
 
-    with open("training-flow.csv", "w") as of:
-        of.write("{}\n".format(header))
-        with open("train", "r") as f:
+    # 파일 열기에 utf-8 추가
+    with open("training-flow.csv", "w", encoding="utf-8") as of:
+        of.write("{}\n".format(header.strip())) # 줄바꿈 중복 방지를 위해 strip() 추가
+        with open("train", "r", encoding="utf-8", errors="ignore") as f:
             for line in f:
                 tmp = line.strip().split(",")
                 aname = tmp[-1]
@@ -98,9 +107,10 @@ def label_attack_step():
                         break
                 of.write("{}\n".format(','.join(tmp)))
 
-    with open("test-flow.csv", "w") as of:
-        of.write("{}\n".format(header))
-        with open("test", "r") as f:
+    # 파일 열기에 utf-8 추가
+    with open("test-flow.csv", "w", encoding="utf-8") as of:
+        of.write("{}\n".format(header.strip()))
+        with open("test", "r", encoding="utf-8", errors="ignore") as f:
             for line in f:
                 tmp = line.strip().split(",")
                 aname = tmp[-1]
