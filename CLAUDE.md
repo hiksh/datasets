@@ -160,6 +160,15 @@ def process():    # INPUT_FILENAME → OUTPUT_FILENAME (표준 3컬럼 추가)
 # 표준 출력 포맷: feature_columns... | attack_name | attack_flag | attack_step
 ```
 
+### 인용 / BibTeX (`citations/`)
+
+- 각 데이터셋의 **원본논문 BibTeX** 는 `citations/<dataset>.bib` 에 있음 (파일명 = 디렉토리명, 현재 29개).
+- README 연동:
+  - `Available Datasets` 표 — 데이터셋 이름은 디렉토리 링크 유지, 옆 **📚** 아이콘이 `citations/*.bib` 로 연결.
+  - `Dataset Details` — `Source` = 원본논문명 + `[[BibTeX]]` 링크, `File Source` = 실제 다운로드 소스(Kaggle/URL 등).
+- **새 데이터셋 추가 시**: `citations/<dataset>.bib` 생성 + README 표의 📚 링크 + Details 의 Source/File Source 도 같이 추가할 것.
+- 저자/연도/venue/DOI 는 **DBLP 기준으로 검증**해서 기입.
+
 ### Kaggle 소스 403 현황 (2026-05-30 전수 검증)
 
 | 상태 | Dataset (download.py 실제 ID) | 비고 |
