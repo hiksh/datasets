@@ -31,7 +31,7 @@ Running `python3 download.py` in any dataset directory will download the raw dat
 
 ## Available Datasets
 
-> In the tables below, the dataset name links to its directory, and the **📚** icon links to the original paper's BibTeX file under [`citations/`](./citations). See each entry in [Dataset Details](#dataset-details) for the full citation.
+> In the tables below, each dataset name links to its original paper's BibTeX file under [`citations/`](./citations). See [Dataset Details](#dataset-details) for the full citation and the file source of each dataset.
 
 ### Phase 1 — Original Collection (Verified)
 
@@ -39,17 +39,17 @@ These datasets use the original pipeline (pre-standardized format). Output files
 
 | Dataset | Tags | Output file(s) | Notes |
 |---|---|---|---|
-| **[CICIDS2017](./cicids2017)** [📚](./citations/cicids2017.bib) | general-purpose, dos-ddos, web-attacks, brute-force, scan, botnet | `training-flow.csv`, `test-flow.csv` | Kaggle `chethuhn/network-intrusion-dataset` |
-| **[CSE-CIC-IDS2018](./cicids2018)** [📚](./citations/cicids2018.bib) | general-purpose, dos-ddos, web-attacks, brute-force, scan, botnet | `training-flow.csv`, `test-flow.csv` | Kaggle `solarmainframe/ids-intrusion-csv` |
-| **[CICIoT2023](./ciciot2023)** [📚](./citations/ciciot2023.bib) | iot, general-purpose | `training-flow.csv`, `test-flow.csv` | 105 IoT attack types |
-| **[ToN-IoT](./ton-iot)** [📚](./citations/ton-iot.bib) | iiot-ics, general-purpose | `training-flow.csv`, `test-flow.csv` | — |
-| **[Mirai Botnet Dataset](./mirai)** [📚](./citations/mirai.bib) | iot, botnet | `training-flow.csv`, `test-flow.csv` | Pre-processed files included; no download.py |
-| **[EPIC Attack Datasets](./epic_attack_datasets)** [📚](./citations/epic.bib) | apt | `Reformatted_EPICA.csv`, `Reformatted_EPICB.csv` | APT scenarios |
-| **[Edge-IIoTset](./edge-iiot)** [📚](./citations/edge-iiot.bib) | iiot-ics, iot | `Reformatted_EdgeIIoT.csv` | Kaggle `mohamedamineferrag/edgeiiotset-...` |
-| **[XIIoTID](./xiiotid)** [📚](./citations/xiiotid.bib) | iiot-ics, iot | `Reformatted_XIIoTID.csv` | Kaggle `munaalhawawreh/xiiotid-...` |
-| **[NF-ToN-IoT-v3](./nf-ton-iot-v3)** [📚](./citations/nf-ton-iot-v3.bib) | iiot-ics | `Reformatted_NF-ToN-IoT-v3.csv` | NetFlow v9, Kaggle `seyhed/nf-ton-iot-v3` |
-| **[WUSTL-IIoT-2021](./wustl-iiot-2021)** [📚](./citations/wustl-iiot-2021.bib) | iiot-ics | `Reformatted_WUSTL-IIoT-2021.csv` | SCADA, Kaggle `annaamalaiu/wustl-iiot-2021-dataset` |
-| **[LSPR23](./lspr23)** [📚](./citations/lspr23.bib) | general-purpose, anomaly | `LSPR23/ls23pr_flows/Reformatted_LSPR23.csv` | Zenodo, 9.8 GB CSV, chunked processing |
+| **[CICIDS2017](./citations/cicids2017.bib)** | general-purpose, dos-ddos, web-attacks, brute-force, scan, botnet | `training-flow.csv`, `test-flow.csv` | Kaggle `chethuhn/network-intrusion-dataset` |
+| **[CSE-CIC-IDS2018](./citations/cicids2018.bib)** | general-purpose, dos-ddos, web-attacks, brute-force, scan, botnet | `training-flow.csv`, `test-flow.csv` | Kaggle `solarmainframe/ids-intrusion-csv` |
+| **[CICIoT2023](./citations/ciciot2023.bib)** | iot, general-purpose | `training-flow.csv`, `test-flow.csv` | 105 IoT attack types |
+| **[ToN-IoT](./citations/ton-iot.bib)** | iiot-ics, general-purpose | `training-flow.csv`, `test-flow.csv` | — |
+| **[Mirai Botnet Dataset](./citations/mirai.bib)** | iot, botnet | `training-flow.csv`, `test-flow.csv` | Pre-processed files included; no download.py |
+| **[EPIC Attack Datasets](./citations/epic.bib)** | apt | `Reformatted_EPICA.csv`, `Reformatted_EPICB.csv` | APT scenarios |
+| **[Edge-IIoTset](./citations/edge-iiot.bib)** | iiot-ics, iot | `Reformatted_EdgeIIoT.csv` | Kaggle `mohamedamineferrag/edgeiiotset-...` |
+| **[XIIoTID](./citations/xiiotid.bib)** | iiot-ics, iot | `Reformatted_XIIoTID.csv` | Kaggle `munaalhawawreh/xiiotid-...` |
+| **[NF-ToN-IoT-v3](./citations/nf-ton-iot-v3.bib)** | iiot-ics | `Reformatted_NF-ToN-IoT-v3.csv` | NetFlow v9, Kaggle `seyhed/nf-ton-iot-v3` |
+| **[WUSTL-IIoT-2021](./citations/wustl-iiot-2021.bib)** | iiot-ics | `Reformatted_WUSTL-IIoT-2021.csv` | SCADA, Kaggle `annaamalaiu/wustl-iiot-2021-dataset` |
+| **[LSPR23](./citations/lspr23.bib)** | general-purpose, anomaly | `LSPR23/ls23pr_flows/Reformatted_LSPR23.csv` | Zenodo, 9.8 GB CSV, chunked processing |
 
 ### Phase 2 — Expansion (Verified, unmapped=0)
 
@@ -57,20 +57,20 @@ All datasets produce `Reformatted_*.csv` with the standardized 3-column format.
 
 | Dataset | Tags | Rows | Steps | Kaggle / Source |
 |---|---|---|---|---|
-| **[KDDCup 1999](./kddcup1999)** [📚](./citations/kddcup1999.bib) | general-purpose, anomaly | 494k | 0,1,4,5,7 | `galaxyh/kdd-cup-1999-data` |
-| **[NSL-KDD](./nsl-kdd)** [📚](./citations/nsl-kdd.bib) | general-purpose, anomaly | 148k | 0,1,4,5,6,7 | `hassan06/nslkdd` |
-| **[UNSW-NB15](./unsw-nb15)** [📚](./citations/unsw-nb15.bib) | general-purpose, anomaly | 258k | 0,1,4,5,6,7 | `mrwellsdavid/unsw-nb15` |
-| **[CTU-13](./ctu-13)** [📚](./citations/ctu-13.bib) | botnet | 1.6M | 0,6 | `dhoogla/ctu13` |
-| **[N-BaIoT](./n-baiot)** [📚](./citations/n-baiot.bib) | iot, botnet | 2.4M+ | 0,1,7 | `mkashifn/nbaiot-dataset` |
-| **[CIDDS-001](./cidds-001)** [📚](./citations/cidds-001.bib) | general-purpose, scan | 204k | 0,1,4 | `dhoogla/cidds001` |
-| **[CIDDS-002](./cidds-002)** [📚](./citations/cidds-002.bib) | general-purpose, scan | 2.6M | 0,1 | `dhoogla/cidds002` |
-| **[IoTID20](./iotid20)** [📚](./citations/iotid20.bib) | iot | 626k | 0,1,4,6,7 | `rohulaminlabid/iotid20-dataset` |
-| **[HIKARI-2021](./hikari-2021)** [📚](./citations/hikari-2021.bib) | general-purpose | 555k | 0,1,4,7 | `kk0105/allflowmeter-hikari2021` |
-| **[InSDN](./insdn)** [📚](./citations/insdn.bib) | sdn | 344k | 0,1,4,6,7 | `badcodebuilder/insdn-dataset` |
-| **[Bot-IoT](./bot-iot)** [📚](./citations/bot-iot.bib) | iot, botnet, dos-ddos | 73.4M | 0,1,7 | `vigneshvenkateswaran/bot-iot` |
-| **[CIC-DDoS2019](./cic-ddos2019)** [📚](./citations/cic-ddos2019.bib) | dos-ddos, general-purpose | 431k | 0,3,7 | `dhoogla/cicddos2019` |
-| **[Kitsune](./kitsune)** [📚](./citations/kitsune.bib) | iot, anomaly | 1.8M | 0,1,4,6,7 | `ymirsky/network-attack-dataset-kitsune` |
-| **[IoT-23](./iot-23)** [📚](./citations/iot-23.bib) | iot, botnet | 2.6M | 0,1,6,7 | Official CTU: mcfp.felk.cvut.cz |
+| **[KDDCup 1999](./citations/kddcup1999.bib)** | general-purpose, anomaly | 494k | 0,1,4,5,7 | `galaxyh/kdd-cup-1999-data` |
+| **[NSL-KDD](./citations/nsl-kdd.bib)** | general-purpose, anomaly | 148k | 0,1,4,5,6,7 | `hassan06/nslkdd` |
+| **[UNSW-NB15](./citations/unsw-nb15.bib)** | general-purpose, anomaly | 258k | 0,1,4,5,6,7 | `mrwellsdavid/unsw-nb15` |
+| **[CTU-13](./citations/ctu-13.bib)** | botnet | 1.6M | 0,6 | `dhoogla/ctu13` |
+| **[N-BaIoT](./citations/n-baiot.bib)** | iot, botnet | 2.4M+ | 0,1,7 | `mkashifn/nbaiot-dataset` |
+| **[CIDDS-001](./citations/cidds-001.bib)** | general-purpose, scan | 204k | 0,1,4 | `dhoogla/cidds001` |
+| **[CIDDS-002](./citations/cidds-002.bib)** | general-purpose, scan | 2.6M | 0,1 | `dhoogla/cidds002` |
+| **[IoTID20](./citations/iotid20.bib)** | iot | 626k | 0,1,4,6,7 | `rohulaminlabid/iotid20-dataset` |
+| **[HIKARI-2021](./citations/hikari-2021.bib)** | general-purpose | 555k | 0,1,4,7 | `kk0105/allflowmeter-hikari2021` |
+| **[InSDN](./citations/insdn.bib)** | sdn | 344k | 0,1,4,6,7 | `badcodebuilder/insdn-dataset` |
+| **[Bot-IoT](./citations/bot-iot.bib)** | iot, botnet, dos-ddos | 73.4M | 0,1,7 | `vigneshvenkateswaran/bot-iot` |
+| **[CIC-DDoS2019](./citations/cic-ddos2019.bib)** | dos-ddos, general-purpose | 431k | 0,3,7 | `dhoogla/cicddos2019` |
+| **[Kitsune](./citations/kitsune.bib)** | iot, anomaly | 1.8M | 0,1,4,6,7 | `ymirsky/network-attack-dataset-kitsune` |
+| **[IoT-23](./citations/iot-23.bib)** | iot, botnet | 2.6M | 0,1,6,7 | Official CTU: mcfp.felk.cvut.cz |
 
 ### Phase 2 — Improved CIC-IDS (Liu et al., 2022)
 
@@ -79,15 +79,15 @@ Source: https://intrusion-detection.distrinet-research.be/CNS2022/
 
 | Dataset | Tags | Rows | Steps | Archive size |
 |---|---|---|---|---|
-| **[CIC-IDS2017 Improved](./cicids2017-imp)** [📚](./citations/cicids2017-imp.bib) | general-purpose, dos-ddos, web-attacks, brute-force, scan, botnet | 2.1M | 0,1,4,6,7 | 328 MB |
-| **[CSE-CIC-IDS2018 Improved](./cicids2018-imp)** [📚](./citations/cicids2018-imp.bib) | general-purpose, dos-ddos, web-attacks, brute-force, scan, botnet | 63.2M | 0,4,6,7 | 9.7 GB |
+| **[CIC-IDS2017 Improved](./citations/cicids2017-imp.bib)** | general-purpose, dos-ddos, web-attacks, brute-force, scan, botnet | 2.1M | 0,1,4,6,7 | 328 MB |
+| **[CSE-CIC-IDS2018 Improved](./citations/cicids2018-imp.bib)** | general-purpose, dos-ddos, web-attacks, brute-force, scan, botnet | 63.2M | 0,4,6,7 | 9.7 GB |
 
 ### Phase 2 — Pending (Kaggle license acceptance required)
 
 | Dataset | Tags | Download |
 |---|---|---|
-| **[AWID2](./awid2)** [📚](./citations/awid2.bib) | wireless | Kaggle `kolias93/awid2-wifi-intrusion-dataset` **or** `python3 download.py register NAME LAST EMAIL AFFIL` |
-| **[AWID3](./awid3)** [📚](./citations/awid3.bib) | wireless | Kaggle `chatzoglou/awid3` **or** `python3 download.py register NAME LAST EMAIL AFFIL` |
+| **[AWID2](./citations/awid2.bib)** | wireless | Kaggle `kolias93/awid2-wifi-intrusion-dataset` **or** `python3 download.py register NAME LAST EMAIL AFFIL` |
+| **[AWID3](./citations/awid3.bib)** | wireless | Kaggle `chatzoglou/awid3` **or** `python3 download.py register NAME LAST EMAIL AFFIL` |
 
 ---
 
