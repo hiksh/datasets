@@ -107,6 +107,32 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 
 ---
 
+## Train/Test 분할 (`split.env` + `split_util.py`)
+
+`Reformatted_*.csv` 를 `training-flow.csv` / `test-flow.csv` 로 나누는 공용 유틸.
+
+- **정책은 전부 `split.env` 에 데이터셋별 한 줄로 하드코딩.** 비율/시드/보존여부를
+  바꾸려면 이 파일 **한 곳만** 고치면 전체에 반영됨. `split_util.py` 는 이 설정을
+  읽어 적용만 하는 얕은 러너 — 유틸에 비율/데이터셋명을 하드코딩하지 말 것.
+- **값 문법** (우변):
+  - `<ratio>,<seed>` — `attack_flag` 기준 stratified 분할 (pandas, 전체 메모리 로드).
+  - `<ratio>,<seed>,lazy` — 동일 분할이지만 polars `scan_csv` 로 **클래스별로 하나씩만**
+    메모리에 올림. 초대형 파일용 (`bot-iot`, `cicids2018-imp`, `lspr23`).
+    출력이 클래스별 블록 정렬됨(블록 내 셔플) — 학습 시 셔플 전제.
+  - `official` — 원본 배포본의 train/test 분할 보존 (`nsl-kdd`, `unsw-nb15`).
+    `split` provenance 컬럼 기준으로 분리. 재분할 시 논문 재현성 깨지므로 보존.
+  - `pipeline` — 자체 download.py 가 이미 두 파일 생성 (`cicids2017/2018`, `ciciot2023`,
+    `ton-iot`, `mirai`). 러너가 건너뜀.
+- **`official` 데이터셋 규칙**: 해당 download.py 는 concat 전에
+  `df_train["split"]="train"`, `df_test["split"]="test"` 태그를 남기고, process() 는
+  `split` 컬럼을 feature 에서 제외해 맨 끝에 보존해야 함. (예: `unsw-nb15/download.py`)
+- **실행**: `python3 split_util.py <dataset> [...]`.
+  `--keep`(중간 Reformatted 유지, 기본은 삭제), `--test-ratio` / `--seed` 로 일시 오버라이드.
+- 새 데이터셋 추가 시 `split.env` 에 한 줄 등록할 것. `split.env`/`split_util.py` 는
+  git 추적, 데이터 CSV 3종(Reformatted/training-flow/test-flow)은 `*.csv` 로 gitignore.
+
+---
+
 ## 데이터셋 확장 작업 현황 (Phase 2)
 
 > 마지막 업데이트: 2026-05-30

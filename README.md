@@ -44,7 +44,6 @@ These datasets use the original pipeline (pre-standardized format). Output files
 | **[CICIoT2023](./citations/ciciot2023.bib)** | iot, general-purpose | `training-flow.csv`, `test-flow.csv` | 105 IoT attack types |
 | **[ToN-IoT](./citations/ton-iot.bib)** | iiot-ics, general-purpose | `training-flow.csv`, `test-flow.csv` | — |
 | **[Mirai Botnet Dataset](./citations/mirai.bib)** | iot, botnet | `training-flow.csv`, `test-flow.csv` | Pre-processed files included; no download.py |
-| **[EPIC Attack Datasets](./citations/epic.bib)** | apt | `Reformatted_EPICA.csv`, `Reformatted_EPICB.csv` | APT scenarios |
 | **[Edge-IIoTset](./citations/edge-iiot.bib)** | iiot-ics, iot | `Reformatted_EdgeIIoT.csv` | Kaggle `mohamedamineferrag/edgeiiotset-...` |
 | **[XIIoTID](./citations/xiiotid.bib)** | iiot-ics, iot | `Reformatted_XIIoTID.csv` | Kaggle `munaalhawawreh/xiiotid-...` |
 | **[NF-ToN-IoT-v3](./citations/nf-ton-iot-v3.bib)** | iiot-ics | `Reformatted_NF-ToN-IoT-v3.csv` | NetFlow v9, Kaggle `seyhed/nf-ton-iot-v3` |
@@ -118,12 +117,6 @@ Source: https://intrusion-detection.distrinet-research.be/CNS2022/
 - **Source:** No dedicated dataset paper (proprietary PCAP captures). For the Mirai malware itself: Antonakakis et al., "Understanding the Mirai Botnet," USENIX Security 2017. [[BibTeX]](./citations/mirai.bib)
 - **File Source:** Pre-processed files included in the repository; no `download.py`
 - **Output:** `training-flow.csv`, `test-flow.csv`
-
-### EPIC Attack Datasets
-- **Source:** Tan et al., "High-fidelity Intrusion Detection Datasets for Smart Grid Cybersecurity Research," SmartGridComm 2024 (datasets); Adepu et al., "EPIC: An Electric Power Testbed for Research and Training in Cyber Physical Systems Security," ESORICS 2018 Workshops (testbed). [[BibTeX]](./citations/epic.bib)
-- **File Source:** GitHub `smartgridadsc/EPIC_Attack_Datasets` (raw CSV)
-- **Output:** `Reformatted_EPICA.csv`, `Reformatted_EPICB.csv`
-- **Note:** Smart-grid FDIA scenarios; `attack_step` currently unmapped (-1)
 
 ### Edge-IIoTset
 - **Source:** Ferrag et al., "Edge-IIoTset: A New Comprehensive Realistic Cyber Security Dataset of IoT and IIoT Applications for Centralized and Federated Learning," IEEE Access 2022. [[BibTeX]](./citations/edge-iiot.bib)
@@ -291,6 +284,25 @@ python3 download.py
 # Download all at once
 bash download_all.sh
 ```
+
+### Train/test split
+
+Datasets that produce a `Reformatted_*.csv` can be split into `training-flow.csv`
+and `test-flow.csv` with `split_util.py`:
+
+```bash
+python3 split_util.py cidds-001              # one dataset
+python3 split_util.py unsw-nb15 cidds-001    # several at once
+python3 split_util.py cidds-001 --keep       # keep the intermediate Reformatted_*.csv
+```
+
+The split policy is hardcoded per dataset in **[`split.env`](./split.env)** — one
+line each. A dataset is split by a stratified `<ratio>,<seed>` (balanced on
+`attack_flag`), the same with a `,lazy` suffix (memory-safe polars scan for very
+large files such as `bot-iot`, `cicids2018-imp`, `lspr23`), marked `official` to
+preserve its original release split (`nsl-kdd`, `unsw-nb15`), or `pipeline` if its
+own `download.py` already emits the two flow files. Edit `split.env` to change
+ratios/seed for the whole collection in one place.
 
 ### AWID2/3 — official site registration
 
