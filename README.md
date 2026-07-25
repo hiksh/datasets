@@ -48,7 +48,7 @@ These datasets use the original pipeline (pre-standardized format). Output files
 | **[XIIoTID](./citations/xiiotid.bib)** | iiot-ics, iot | `Reformatted_XIIoTID.csv` | Kaggle `munaalhawawreh/xiiotid-...` |
 | **[NF-ToN-IoT-v3](./citations/nf-ton-iot-v3.bib)** | iiot-ics | `Reformatted_NF-ToN-IoT-v3.csv` | NetFlow v9, Kaggle `seyhed/nf-ton-iot-v3` |
 | **[WUSTL-IIoT-2021](./citations/wustl-iiot-2021.bib)** | iiot-ics | `Reformatted_WUSTL-IIoT-2021.csv` | SCADA, Kaggle `annaamalaiu/wustl-iiot-2021-dataset` |
-| **[LSPR23](./citations/lspr23.bib)** | general-purpose, anomaly | `LSPR23/ls23pr_flows/Reformatted_LSPR23.csv` | Zenodo, 9.8 GB CSV, chunked processing |
+| **[LSPR23](./citations/lspr23.bib)** | general-purpose, anomaly | `Reformatted_LSPR23.csv` | Zenodo, 9.8 GB CSV, chunked processing |
 
 ### Phase 2 — Expansion (Verified, unmapped=0)
 
@@ -143,7 +143,7 @@ Source: https://intrusion-detection.distrinet-research.be/CNS2022/
 ### LSPR23
 - **Source:** Dijk et al., "LSPR23: A novel IDS dataset from the largest live-fire cybersecurity exercise," Journal of Information Security and Applications 2024. [[BibTeX]](./citations/lspr23.bib)
 - **File Source:** Zenodo record `8042347`
-- **Output:** `LSPR23/ls23pr_flows/Reformatted_LSPR23.csv`
+- **Output:** `Reformatted_LSPR23.csv`
 - **Note:** 9.8 GB CSV, chunked processing
 
 ### KDDCup 1999

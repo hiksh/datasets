@@ -214,3 +214,5 @@ def process():    # INPUT_FILENAME → OUTPUT_FILENAME (표준 3컬럼 추가)
 - **Kitsune**: `ymirsky/network-attack-dataset-kitsune` (라이선스 불필요). Mirai Botnet labels 파일 소문자(`mirai_labels.csv`) → 대소문자 무시 매칭. labels 형식 2종: 헤더+인덱스컬럼(`x`), 헤더없이 0/1 (Mirai).
 - **CIC-IDS2017/2018 Imp.**: `- Attempted` suffix 레이블 → step 0 처리 (공격 의도지만 실제 악성 행동 없음).
 - **n-baiot/nf-ton-iot-v3**: 캐시 손상 시 "Bad magic number" → `rm -rf ~/.cache/kagglehub/datasets/{id}` 후 재실행.
+- **LSPR23**: Zenodo `ls23pr_flows.zip` 는 루트에 단일 CSV(`ls23pr_v1.csv`, ZIP64 >4GB)만 들어있음 → `INPUT_FILE=./ls23pr_v1.csv`, `OUTPUT_FILE=./Reformatted_LSPR23.csv` (기존 `LSPR23/ls23pr_flows/` 하드코딩 경로는 오류였음).
+- **X-IIoTID**: 실제 라벨 컬럼은 `class1`(세부공격 19종)/`class2`(전술 10종)/`class3`(Attack/Normal). `class` 아님 → REQUIRED_COLUMNS·rename 을 `class1→attack_step`, `class2→attack_name`, `class3→attack_flag` 로 수정. KILL_CHAIN 키를 실제 class1 값(`scanning_vulnerability`, `tcp relay`, `crypto-ransomware` 등)에 맞춰 재작성해 unmapped=0 (820,834행 검증).
