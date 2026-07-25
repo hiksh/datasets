@@ -17,7 +17,6 @@ DATASETS=(
     ciciot2023
     ton-iot
     # mirai: pre-processed files included in repo; no download.py
-    EPIC_Attack_Datasets
     edge-iiot
     xiiotid
     nf-ton-iot-v3
