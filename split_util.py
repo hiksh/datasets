@@ -83,13 +83,30 @@ def _split_stratified(df, test_ratio, seed, stratify_column, split_column):
     return train_df, test_df
 
 
+def _count_rows(csv_path):
+    """Row count of a CSV, excluding the header, without holding it in memory."""
+    import polars as pl
+
+    return pl.scan_csv(csv_path, infer_schema_length=0).select(pl.len()).collect().item()
+
+
 def _split_stratified_lazy(reformatted_csv, train_path, test_path,
                            test_ratio, seed, stratify_column, split_column):
-    """Memory-safe stratified split for very large files.
+    """Memory-flat stratified split for very large files.
 
-    Scans the CSV lazily with polars and processes one class at a time, so only
-    a single class is ever held in memory. Rows in the output are grouped by
-    class (shuffled within each class) — shuffle downstream if needed.
+    Streams the CSV with polars and sinks each side straight to disk, so nothing
+    bigger than a batch is ever resident. Rows keep their original order.
+
+    Assignment is per-row: a row goes to test when the hash of its row index
+    falls in the bottom `test_ratio` of the hash space. That is a Bernoulli draw
+    rather than an exact per-class count, so each class lands within a rounding
+    error of test_ratio instead of hitting it exactly — on files this size the
+    difference is negligible, and the result is reproducible for a given seed.
+
+    (The previous implementation collected one class at a time. With a binary
+    stratify column the majority class is most of the file, so it was killed by
+    the OOM killer on cicids2018-imp — and left a partial output behind.)
+
     Returns (n_train, n_test).
     """
     import polars as pl
@@ -101,29 +118,23 @@ def _split_stratified_lazy(reformatted_csv, train_path, test_path,
     if stratify_column not in columns:
         raise RuntimeError(f"No '{stratify_column}' column in {reformatted_csv}.")
 
-    classes = (
-        lazy.select(pl.col(stratify_column)).unique().collect()
-        .to_series().drop_nulls().to_list()
-    )
+    resolution = 1_000_000
+    threshold = int(round(test_ratio * resolution))
+    keep = [c for c in columns if c != split_column]
 
-    n_train = n_test = 0
-    first = True
-    for cls in classes:
-        df_cls = lazy.filter(pl.col(stratify_column) == cls).collect()
-        if split_column in df_cls.columns:
-            df_cls = df_cls.drop(split_column)
-        df_cls = df_cls.sample(fraction=1.0, shuffle=True, seed=seed)
-        k = int(round(df_cls.height * test_ratio))
-        test_part = df_cls.head(k)
-        train_part = df_cls.slice(k)
+    indexed = lazy.with_row_index("__row")
+    is_test = (pl.col("__row").hash(seed=seed) % resolution) < threshold
 
-        with open(train_path, "wb" if first else "ab") as f:
-            train_part.write_csv(f, include_header=first)
-        with open(test_path, "wb" if first else "ab") as f:
-            test_part.write_csv(f, include_header=first)
-        first = False
-        n_train += train_part.height
-        n_test += test_part.height
+    # Sink to .partial and rename only once both sides are written: a killed run
+    # must not leave behind a train/test pair that looks complete.
+    train_tmp, test_tmp = train_path + ".partial", test_path + ".partial"
+    indexed.filter(is_test).select(keep).sink_csv(test_tmp)
+    indexed.filter(~is_test).select(keep).sink_csv(train_tmp)
+
+    n_test = _count_rows(test_tmp)
+    n_train = _count_rows(train_tmp)
+    os.replace(test_tmp, test_path)
+    os.replace(train_tmp, train_path)
 
     return n_train, n_test
 

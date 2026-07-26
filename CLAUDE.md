@@ -116,9 +116,12 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
   읽어 적용만 하는 얕은 러너 — 유틸에 비율/데이터셋명을 하드코딩하지 말 것.
 - **값 문법** (우변):
   - `<ratio>,<seed>` — `attack_flag` 기준 stratified 분할 (pandas, 전체 메모리 로드).
-  - `<ratio>,<seed>,lazy` — 동일 분할이지만 polars `scan_csv` 로 **클래스별로 하나씩만**
-    메모리에 올림. 초대형 파일용 (`bot-iot`, `cicids2018-imp`, `lspr23`).
-    출력이 클래스별 블록 정렬됨(블록 내 셔플) — 학습 시 셔플 전제.
+  - `<ratio>,<seed>,lazy` — polars 스트리밍(`sink_csv`)으로 디스크에 직접 흘려보냄.
+    메모리 사용량이 파일 크기와 무관하게 평평. 초대형 파일용
+    (`bot-iot`, `cicids2018-imp`, `lspr23`).
+    **행 순서는 원본 그대로 보존**되고, 배정은 행 인덱스 해시 기반이라 클래스별 비율이
+    정확히 `test_ratio` 는 아니고 반올림 오차 범위(수천만 행 기준 ±0.1% 미만) 안에 든다.
+    시드가 같으면 재현된다. 두 출력 모두 `.partial` 로 쓴 뒤 마지막에 rename 한다.
   - `official` — 원본 배포본의 train/test 분할 보존 (`nsl-kdd`, `unsw-nb15`).
     `split` provenance 컬럼 기준으로 분리. 재분할 시 논문 재현성 깨지므로 보존.
   - `pipeline` — 자체 download.py 가 이미 두 파일 생성 (`cicids2017/2018`, `ciciot2023`,
@@ -262,4 +265,5 @@ def process():    # INPUT_FILENAME → OUTPUT_FILENAME (표준 3컬럼 추가)
 - **n-baiot/nf-ton-iot-v3**: 캐시 손상 시 "Bad magic number" → `rm -rf ~/.cache/kagglehub/datasets/{id}` 후 재실행.
 - **LSPR23**: Zenodo `ls23pr_flows.zip` 는 루트에 단일 CSV(`ls23pr_v1.csv`, ZIP64 >4GB)만 들어있음 → `INPUT_FILE=./ls23pr_v1.csv`, `OUTPUT_FILE=./Reformatted_LSPR23.csv` (기존 `LSPR23/ls23pr_flows/` 하드코딩 경로는 오류였음).
 - **X-IIoTID**: 실제 라벨 컬럼은 `class1`(세부공격 19종)/`class2`(전술 10종)/`class3`(Attack/Normal). `class` 아님 → REQUIRED_COLUMNS·rename 을 `class1→attack_step`, `class2→attack_name`, `class3→attack_flag` 로 수정. KILL_CHAIN 키를 실제 class1 값(`scanning_vulnerability`, `tcp relay`, `crypto-ransomware` 등)에 맞춰 재작성해 unmapped=0 (820,834행 검증).
+- **`lazy` 분할 OOM (수정됨)**: 구버전 `_split_stratified_lazy` 는 `filter(...).collect()` 로 **클래스 하나를 통째로** 메모리에 올렸다. `attack_flag` 는 값이 0/1 둘뿐이라 benign 클래스가 파일 대부분 → `cicids2018-imp`(34GB) 에서 `Killed`(OOM). 게다가 첫 클래스는 이미 기록된 뒤라 **공격 트래픽만 든 training/test-flow 가 남았다** — 비율은 8:2 로 맞아 정상처럼 보이는 게 함정. `sink_csv` 스트리밍 + `.partial` rename 으로 교체됨. 구버전으로 만든 flow 파일이 있으면 반드시 지우고 다시 분할할 것.
 - **download.py 다운로드 가드 (미수정)**: 다운로드 여부를 `INPUT_FILENAME` 존재만 보고 판단한다. 그래서 원본 CSV 만 수동으로 지우고 `Reformatted_*.csv` 를 남겨두면 원본을 다시 받은 뒤 처리는 스킵한다(예: `bot-iot` 14GB 재다운로드). `cleanup.sh` 는 분할 완료된 디렉토리에서 둘을 함께 지우므로 이 상태를 만들지 않는다 — 수동 삭제로만 걸린다. 고치려면 각 download.py 의 조건을 `not exists(INPUT) and not exists(OUTPUT)` 로 바꾸면 됨(20개 파일, 파일당 1줄).
