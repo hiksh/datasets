@@ -54,6 +54,15 @@ SKIPPED=()
 SUCCEEDED=()
 
 for dataset in "${DATASETS[@]}"; do
+    # Final artifacts are the only reliable "already done" marker: split_util.py
+    # deletes Reformatted_*.csv when CLEAN=true, so a download.py that guards on
+    # its own output would re-download everything after a split.
+    if [ -f "$dataset/training-flow.csv" ] && [ -f "$dataset/test-flow.csv" ]; then
+        echo "[SKIP] $dataset: training-flow.csv / test-flow.csv already exist"
+        SKIPPED+=("$dataset")
+        continue
+    fi
+
     if [ ! -f "$dataset/download.py" ]; then
         echo "[SKIP] $dataset: no download.py found"
         SKIPPED+=("$dataset")

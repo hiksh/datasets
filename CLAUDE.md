@@ -133,11 +133,63 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 
 ---
 
-## 데이터셋 확장 작업 현황 (Phase 2)
+## 실행 스킵 & 잔여파일 정리
 
-> 마지막 업데이트: 2026-05-30
+### `download_all.sh` — 최종 산출물 있으면 건너뜀
 
-### 전체 완료 datasets (데이터 검증됨, unmapped=0)
+`training-flow.csv` + `test-flow.csv` 가 **둘 다** 있으면 그 데이터셋을 통째로 스킵한다.
+`download.py` 20개는 이미 `INPUT`/`OUTPUT` 존재 가드를 갖고 있지만, `split_util.py` 가
+`CLEAN=true` 로 `Reformatted_*.csv` 를 지우기 때문에 그 가드만으로는 **분할 후 재다운로드를
+막을 수 없다.** 분할 후에도 남는 최종 산출물이 유일하게 신뢰할 수 있는 "완료" 마커.
+
+### `cleanup.sh` — 재생성 가능한 잔여파일 제거
+
+- `bash cleanup.sh` (dry run, **기본값**) / `bash cleanup.sh --apply` (실제 삭제)
+- **분할 완료된 데이터셋만** 대상. training-flow + test-flow 가 둘 다 있는 디렉토리에서
+  `download.py` / 두 flow 파일을 뺀 나머지(원본 CSV, `Reformatted_*.csv`, `.zip`,
+  `.partial`, `.ckpt_*.json`)를 삭제한다. 아직 분할 안 된 데이터셋은 건드리지 않으므로
+  작업 손실이 없다.
+- **git 추적 파일은 절대 삭제하지 않는다.** `mirai/` 8개 파일은 연구실 자체 데이터라
+  `*.csv` gitignore 를 뚫고 force-add 되어 있고, 이 규칙으로 보호된다.
+
+### 대용량 `process()` 규약 — `.partial` + rename
+
+`bot-iot`, `cicids2018-imp` 는 청크 쓰기를 `<OUTPUT>.partial` 에 하고 **완주한 뒤에만**
+`os.replace()` 로 최종 이름으로 옮긴다. 중단 시 잘린 출력이 남아 다음 실행에서
+`already exists` 로 통과되는 사고를 막기 위함. 진행 로그도 청크마다 출력한다 —
+14GB 급 쓰기는 20~45분이 걸리므로 로그가 없으면 정지와 구분이 안 된다.
+
+- `bot-iot` 의 `download()` 도 `.partial` 로 concat 후 rename 한다. 개별 CSV 실패는
+  WARN 후 continue 가 아니라 **즉시 예외**로 중단 — 조용히 빠진 파일이 불완전한
+  `Bot-IoT.csv` 를 만들고, 그게 완성본으로 굳는 것을 막는다.
+- `lspr23` 는 체크포인트 재개(`.ckpt_*.json`) 방식으로 같은 문제를 이미 해결하고 있고
+  청크 로그도 있다 → **건드리지 말 것.**
+- 출력이 이미 있을 때의 `else` 브랜치에서 **결과 파일을 재스캔하지 말 것.** `cicids2018-imp`
+  가 "skipping processing" 을 찍고도 통계 출력하려고 34GB 를 전수 스캔하고 있었음(제거됨).
+  스킵은 즉시 끝나야 한다.
+
+---
+
+## 데이터셋 작업 현황
+
+> 마지막 업데이트: 2026-07-26
+
+### Phase 1 완료 datasets (원본 컬렉션)
+
+| Dataset | 디렉토리 | 출력 | 소스 | 비고 |
+|---|---|---|---|---|
+| CICIDS2017 | `cicids2017/` | `training-flow.csv` / `test-flow.csv` | Kaggle `chethuhn/network-intrusion-dataset` | split=pipeline |
+| CSE-CIC-IDS2018 | `cicids2018/` | `training-flow.csv` / `test-flow.csv` | Kaggle `solarmainframe/ids-intrusion-csv` | split=pipeline |
+| CICIoT2023 | `ciciot2023/` | `training-flow.csv` / `test-flow.csv` | Kaggle `akashdogra/cic-iot-2023` | 105개 IoT 공격, split=pipeline |
+| ToN-IoT | `ton-iot/` | `training-flow.csv` / `test-flow.csv` | Kaggle `dhoogla/nftoniot` | split=pipeline |
+| Mirai Botnet Dataset | `mirai/` | `training-flow.csv` / `test-flow.csv` | 전처리본이 저장소에 포함 | `download.py` 없음(원본이 사유 pcap), split=pipeline |
+| Edge-IIoTset | `edge-iiot/` | `Reformatted_EdgeIIoT.csv` | Kaggle `mohamedamineferrag/edgeiiotset-...` | — |
+| X-IIoTID | `xiiotid/` | `Reformatted_XIIoTID.csv` | Kaggle `munaalhawawreh/xiiotid-...` | 820,834행, unmapped=0 |
+| NF-ToN-IoT-v3 | `nf-ton-iot-v3/` | `Reformatted_NF-ToN-IoT-v3.csv` | Kaggle `seyhed/nf-ton-iot-v3` | NetFlow v9 |
+| WUSTL-IIoT-2021 | `wustl-iiot-2021/` | `Reformatted_WUSTL-IIoT-2021.csv` | Kaggle `annaamalaiu/wustl-iiot-2021-dataset` | SCADA 테스트베드 |
+| LSPR23 | `lspr23/` | `Reformatted_LSPR23.csv` | Zenodo record `8042347` | 9.8GB CSV, 청크 처리 |
+
+### Phase 2 완료 datasets (데이터 검증됨, unmapped=0)
 
 | Dataset | 디렉토리 | 행 수 | Kill-chain steps | 소스 | 비고 |
 |---|---|---|---|---|---|
@@ -164,12 +216,6 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 |---|---|---|---|
 | AWID2 | `awid2/` | `kolias93/awid2-wifi-intrusion-dataset` | `python3 download.py register NAME LAST EMAIL AFFIL` |
 | AWID3 | `awid3/` | `chatzoglou/awid3` | `python3 download.py register NAME LAST EMAIL AFFIL` |
-
-### download.py 있음, 데이터 미취득 (기타)
-
-| Dataset | 디렉토리 | 이유 |
-|---|---|---|
-| Mirai Botnet Dataset | `mirai/` | download.py 없음 (pcap + label 파일 기반, 처리 방식 미정) |
 
 ### 코드 구조 (모든 download.py 공통 패턴)
 
@@ -216,3 +262,4 @@ def process():    # INPUT_FILENAME → OUTPUT_FILENAME (표준 3컬럼 추가)
 - **n-baiot/nf-ton-iot-v3**: 캐시 손상 시 "Bad magic number" → `rm -rf ~/.cache/kagglehub/datasets/{id}` 후 재실행.
 - **LSPR23**: Zenodo `ls23pr_flows.zip` 는 루트에 단일 CSV(`ls23pr_v1.csv`, ZIP64 >4GB)만 들어있음 → `INPUT_FILE=./ls23pr_v1.csv`, `OUTPUT_FILE=./Reformatted_LSPR23.csv` (기존 `LSPR23/ls23pr_flows/` 하드코딩 경로는 오류였음).
 - **X-IIoTID**: 실제 라벨 컬럼은 `class1`(세부공격 19종)/`class2`(전술 10종)/`class3`(Attack/Normal). `class` 아님 → REQUIRED_COLUMNS·rename 을 `class1→attack_step`, `class2→attack_name`, `class3→attack_flag` 로 수정. KILL_CHAIN 키를 실제 class1 값(`scanning_vulnerability`, `tcp relay`, `crypto-ransomware` 등)에 맞춰 재작성해 unmapped=0 (820,834행 검증).
+- **download.py 다운로드 가드 (미수정)**: 다운로드 여부를 `INPUT_FILENAME` 존재만 보고 판단한다. 그래서 원본 CSV 만 수동으로 지우고 `Reformatted_*.csv` 를 남겨두면 원본을 다시 받은 뒤 처리는 스킵한다(예: `bot-iot` 14GB 재다운로드). `cleanup.sh` 는 분할 완료된 디렉토리에서 둘을 함께 지우므로 이 상태를 만들지 않는다 — 수동 삭제로만 걸린다. 고치려면 각 download.py 의 조건을 `not exists(INPUT) and not exists(OUTPUT)` 로 바꾸면 됨(20개 파일, 파일당 1줄).

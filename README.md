@@ -42,7 +42,7 @@ These datasets use the original pipeline (pre-standardized format). Output files
 | **[CICIDS2017](./citations/cicids2017.bib)** | general-purpose, dos-ddos, web-attacks, brute-force, scan, botnet | `training-flow.csv`, `test-flow.csv` | Kaggle `chethuhn/network-intrusion-dataset` |
 | **[CSE-CIC-IDS2018](./citations/cicids2018.bib)** | general-purpose, dos-ddos, web-attacks, brute-force, scan, botnet | `training-flow.csv`, `test-flow.csv` | Kaggle `solarmainframe/ids-intrusion-csv` |
 | **[CICIoT2023](./citations/ciciot2023.bib)** | iot, general-purpose | `training-flow.csv`, `test-flow.csv` | 105 IoT attack types |
-| **[ToN-IoT](./citations/ton-iot.bib)** | iiot-ics, general-purpose | `training-flow.csv`, `test-flow.csv` | — |
+| **[ToN-IoT](./citations/ton-iot.bib)** | iiot-ics, general-purpose | `training-flow.csv`, `test-flow.csv` | Kaggle `dhoogla/nftoniot` |
 | **[Mirai Botnet Dataset](./citations/mirai.bib)** | iot, botnet | `training-flow.csv`, `test-flow.csv` | Pre-processed files included; no download.py |
 | **[Edge-IIoTset](./citations/edge-iiot.bib)** | iiot-ics, iot | `Reformatted_EdgeIIoT.csv` | Kaggle `mohamedamineferrag/edgeiiotset-...` |
 | **[XIIoTID](./citations/xiiotid.bib)** | iiot-ics, iot | `Reformatted_XIIoTID.csv` | Kaggle `munaalhawawreh/xiiotid-...` |
@@ -284,6 +284,22 @@ python3 download.py
 # Download all at once
 bash download_all.sh
 ```
+
+`download_all.sh` skips any dataset that already has both `training-flow.csv` and
+`test-flow.csv`, so re-running it never re-downloads finished datasets.
+
+### Reclaiming disk space
+
+Once a dataset is split, its raw downloads and intermediates are regenerable and
+can be removed with `cleanup.sh`:
+
+```bash
+bash cleanup.sh            # dry run — report what would be removed
+bash cleanup.sh --apply    # actually remove
+```
+
+Only datasets that already have both flow files are touched, and git-tracked
+files are never deleted.
 
 ### Train/test split
 
