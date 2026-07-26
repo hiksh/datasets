@@ -288,19 +288,6 @@ bash download_all.sh
 `download_all.sh` skips any dataset that already has both `training-flow.csv` and
 `test-flow.csv`, so re-running it never re-downloads finished datasets.
 
-### Reclaiming disk space
-
-Once a dataset is split, its raw downloads and intermediates are regenerable and
-can be removed with `cleanup.sh`:
-
-```bash
-bash cleanup.sh            # dry run — report what would be removed
-bash cleanup.sh --apply    # actually remove
-```
-
-Only datasets that already have both flow files are touched, and git-tracked
-files are never deleted.
-
 ### Train/test split
 
 Datasets that produce a `Reformatted_*.csv` can be split into `training-flow.csv`
@@ -319,6 +306,19 @@ large files such as `bot-iot`, `cicids2018-imp`, `lspr23`), marked `official` to
 preserve its original release split (`nsl-kdd`, `unsw-nb15`), or `pipeline` if its
 own `download.py` already emits the two flow files. Edit `split.env` to change
 ratios/seed for the whole collection in one place.
+
+### Reclaiming disk space
+
+Once a dataset has been split, its raw downloads and intermediates are
+regenerable and can be removed with `cleanup.sh`:
+
+```bash
+bash cleanup.sh            # dry run — report what would be removed
+bash cleanup.sh --apply    # actually remove
+```
+
+Only datasets that already have both flow files are touched, and git-tracked
+files are never deleted.
 
 ### AWID2/3 — official site registration
 
